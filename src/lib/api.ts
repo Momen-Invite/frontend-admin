@@ -1,0 +1,91 @@
+import { ApiResponse, ApiErrorResponse } from "@/types/api";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+export class ApiError extends Error {
+  status: number;
+  error: string;
+  details?: Record<string, unknown> | null;
+
+  constructor(status: number, message: string, error = "API_ERROR", details = null) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.error = error;
+    this.details = details;
+  }
+}
+
+interface RequestOptions extends RequestInit {
+  params?: Record<string, string | number | boolean | undefined>;
+}
+
+export async function apiClient<T>(endpoint: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
+  const { params, ...customConfig } = options;
+
+  let url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+
+  if (params) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, String(value));
+      }
+    });
+    const queryString = searchParams.toString();
+    if (queryString) {
+      url += `?${queryString}`;
+    }
+  }
+
+  const config: RequestInit = {
+    method: options.method || "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      ...customConfig.headers,
+    },
+    // Required for cookie session authentication (admin_sessions / connect.sid)
+    credentials: "include",
+    ...customConfig,
+  };
+
+  try {
+    const response = await fetch(url, config);
+    const data = await response.json();
+
+    if (!response.ok) {
+      const errorData = data as ApiErrorResponse;
+      throw new ApiError(
+        response.status,
+        errorData.message || `Request failed with status ${response.status}`,
+        errorData.error || "SERVER_ERROR",
+        errorData.details
+      );
+    }
+
+    return data as ApiResponse<T>;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(500, (error as Error).message || "Koneksi ke server terputus.");
+  }
+}
+
+export const api = {
+  get: <T>(url: string, params?: Record<string, string | number | boolean | undefined>) =>
+    apiClient<T>(url, { method: "GET", params }),
+
+  post: <T>(url: string, body?: unknown) =>
+    apiClient<T>(url, { method: "POST", body: body ? JSON.stringify(body) : undefined }),
+
+  put: <T>(url: string, body?: unknown) =>
+    apiClient<T>(url, { method: "PUT", body: body ? JSON.stringify(body) : undefined }),
+
+  patch: <T>(url: string, body?: unknown) =>
+    apiClient<T>(url, { method: "PATCH", body: body ? JSON.stringify(body) : undefined }),
+
+  delete: <T>(url: string) =>
+    apiClient<T>(url, { method: "DELETE" }),
+};

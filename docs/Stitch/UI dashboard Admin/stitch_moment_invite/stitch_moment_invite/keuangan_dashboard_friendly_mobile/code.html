@@ -1,0 +1,408 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Momen Invite - Keuangan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#d9dadc",
+                        "on-primary": "#ffffff",
+                        "on-background": "#191c1e",
+                        "primary-fixed-dim": "#ffb956",
+                        "on-surface": "#16181d",
+                        "primary-container": "#f2a93b",
+                        "surface-container-low": "#f3f4f6",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f8f9fb",
+                        "surface-container-highest": "#e1e2e4",
+                        "inverse-surface": "#2e3132",
+                        "on-tertiary-fixed-variant": "#004786",
+                        "error": "#dc2626",
+                        "outline-variant": "#d6c3af",
+                        "on-tertiary-fixed": "#001c3a",
+                        "on-secondary-fixed": "#271900",
+                        "surface-variant": "#e1e2e4",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#ffddb5",
+                        "warning": "#b45309",
+                        "tertiary": "#005faf",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#8ab9ff",
+                        "on-surface-variant": "#514535",
+                        "secondary-fixed": "#ffdeaa",
+                        "surface-tint": "#835400",
+                        "inverse-on-surface": "#f0f1f3",
+                        "on-primary-fixed": "#2a1800",
+                        "surface-container": "#edeef0",
+                        "surface-container-high": "#e7e8ea",
+                        "primary": "#835400",
+                        "inverse-primary": "#ffb956",
+                        "secondary-fixed-dim": "#e5c187",
+                        "on-secondary-container": "#785c2c",
+                        "secondary-container": "#fdd79c",
+                        "background": "#f8f9fb",
+                        "surface": "#f8f9fb",
+                        "on-primary-container": "#664000",
+                        "on-secondary-fixed-variant": "#5b4314",
+                        "outline": "#847563",
+                        "on-error": "#ffffff",
+                        "on-tertiary-container": "#004888",
+                        "on-primary-fixed-variant": "#633f00",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#d4e3ff",
+                        "secondary": "#755a2a",
+                        "success": "#16a34a",
+                        "tertiary-fixed-dim": "#a6c8ff",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "md": "16px",
+                        "gutter": "24px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "sidebar-width": "96px",
+                        "xl": "40px"
+                    },
+                    "fontFamily": {
+                        "display": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "button-text": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-capsule": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "data-numeric": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display": ["40px", { "lineHeight": "1.15", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+                        "headline-md": ["18px", { "lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "button-text": ["14px", { "lineHeight": "1", "letterSpacing": "0", "fontWeight": "600" }],
+                        "headline-lg": ["30px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-capsule": ["12px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["22px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["15px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }],
+                        "data-numeric": ["15px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f3f4f6; /* surface-container-low */
+            color: #16181d; /* on-surface */
+        }
+        .card-shadow {
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.02);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body-lg text-body-lg pb-[80px]">
+<!-- Top Navigation -->
+<nav class="bg-surface-container-lowest sticky top-0 z-50 px-md py-md flex justify-between items-center shadow-sm">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background">Keuangan</h1>
+<div class="flex items-center space-x-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A small circular profile picture avatar for a user interface. The avatar shows a smiling professional in a brightly lit modern office setting, consistent with a clean, light-mode fintech dashboard aesthetic. Minimalist details, neutral gray and amber accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxvLf_KrDNzS57pMr79OYDnbx75DHyXe2u9_q3VoSxVvXAyKhFGePEBwcU8M3MO3ypS6yXSy6gIIaCMcwWIXmZXPaD5BwnPiKYBQKHST7jZeBwriW9dSFZw7lpqKf1dn0juEF3WFZyaTiqUYZ3WYi7imQG6viGCUi6iYiqNlN4jFTdKK08whrDhZcQHoLBA6sVsYO_8p5m366ZeCHkVS9nTNsuLQaiQRtcCE9ziiCQsuEPK3AETwFx">
+</div>
+</div>
+</nav>
+<main class="p-md space-y-md max-w-lg mx-auto">
+<!-- Balance Card -->
+<section class="bg-surface-container-lowest rounded-3xl p-lg card-shadow">
+<h2 class="font-body-sm text-body-sm text-on-surface-variant mb-xs">Saldo Aktif</h2>
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-on-background mb-md font-data-numeric text-data-numeric text-[32px]">Rp 2.450.000</div>
+<button class="w-full bg-primary-container text-on-primary-container font-button-text text-button-text py-3 rounded-xl text-center transition-opacity hover:opacity-90">
+                Tarik Dana
+            </button>
+</section>
+<!-- Withdrawal Form -->
+<section class="bg-surface-container-lowest rounded-3xl p-md card-shadow">
+<h3 class="font-headline-md text-headline-md text-on-background mb-md">Form Pengajuan Withdrawal</h3>
+<div class="space-y-md">
+<div>
+<label class="block font-body-sm text-body-sm text-on-surface-variant mb-xs">Nominal Penarikan</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 font-data-numeric text-data-numeric text-on-surface-variant">Rp</span>
+<input class="w-full pl-8 pr-3 py-2 bg-surface-bright border border-outline-variant rounded-xl font-data-numeric text-data-numeric text-on-background focus:ring-primary focus:border-primary" readonly="" type="text" value="2.450.000">
+</div>
+</div>
+<div>
+<label class="block font-body-sm text-body-sm text-on-surface-variant mb-xs">Rekening Tujuan</label>
+<div class="flex items-center bg-surface-bright border border-outline-variant rounded-xl p-2">
+<div class="w-8 h-8 bg-surface-variant rounded-lg mr-3 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">account_balance</span>
+</div>
+<div>
+<div class="font-body-sm text-body-sm font-semibold">BCA - 1234567890</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[11px]">a.n. John Doe</div>
+</div>
+</div>
+</div>
+<!-- Drag to confirm -->
+<div class="relative w-full h-12 bg-surface-variant rounded-full overflow-hidden mt-sm group select-none touch-none" id="drag-container">
+<div class="absolute inset-0 flex items-center justify-center font-button-text text-button-text text-on-surface-variant z-0">
+                        Geser untuk Konfirmasi
+                    </div>
+<div class="absolute top-0 bottom-0 left-0 bg-primary-container w-12 rounded-full z-10 transition-all duration-300 ease-out" id="drag-progress"></div>
+<div class="absolute left-0 top-0 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center z-20 cursor-grab active:cursor-grabbing border border-outline-variant transition-transform duration-300 ease-out" id="drag-handle">
+<span class="material-symbols-outlined text-primary">arrow_forward</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Weekly Chart -->
+<section class="bg-surface-container-lowest rounded-3xl p-md card-shadow">
+<h3 class="font-headline-md text-headline-md text-on-background mb-md">Grafik Kado Mingguan</h3>
+<div class="h-40 flex items-end justify-between space-x-2 pt-4">
+<!-- Bar 1 -->
+<div class="flex flex-col items-center w-full group">
+<div class="relative w-full flex justify-center h-full items-end">
+<div class="w-6 bg-primary-fixed rounded-t-full" style="height: 40%;"></div>
+</div>
+<span class="font-label-capsule text-label-capsule text-on-surface-variant mt-2">Sen</span>
+</div>
+<!-- Bar 2 -->
+<div class="flex flex-col items-center w-full group">
+<div class="relative w-full flex justify-center h-full items-end">
+<div class="w-6 bg-primary-fixed rounded-t-full" style="height: 70%;"></div>
+</div>
+<span class="font-label-capsule text-label-capsule text-on-surface-variant mt-2">Sel</span>
+</div>
+<!-- Bar 3 -->
+<div class="flex flex-col items-center w-full group">
+<div class="relative w-full flex justify-center h-full items-end">
+<div class="w-6 bg-primary-fixed rounded-t-full" style="height: 30%;"></div>
+</div>
+<span class="font-label-capsule text-label-capsule text-on-surface-variant mt-2">Rab</span>
+</div>
+<!-- Bar 4 (Active) -->
+<div class="flex flex-col items-center w-full group">
+<div class="relative w-full flex justify-center h-full items-end">
+<div class="w-6 bg-primary rounded-t-full relative" style="height: 90%;">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-surface-container-lowest font-label-capsule text-label-capsule px-2 py-1 rounded-md opacity-100 whitespace-nowrap">Rp 800k</div>
+</div>
+</div>
+<span class="font-label-capsule text-label-capsule text-primary font-bold mt-2">Kam</span>
+</div>
+<!-- Bar 5 -->
+<div class="flex flex-col items-center w-full group">
+<div class="relative w-full flex justify-center h-full items-end">
+<div class="w-6 bg-primary-fixed rounded-t-full" style="height: 50%;"></div>
+</div>
+<span class="font-label-capsule text-label-capsule text-on-surface-variant mt-2">Jum</span>
+</div>
+<!-- Bar 6 -->
+<div class="flex flex-col items-center w-full group">
+<div class="relative w-full flex justify-center h-full items-end">
+<div class="w-6 bg-primary-fixed rounded-t-full" style="height: 60%;"></div>
+</div>
+<span class="font-label-capsule text-label-capsule text-on-surface-variant mt-2">Sab</span>
+</div>
+<!-- Bar 7 -->
+<div class="flex flex-col items-center w-full group">
+<div class="relative w-full flex justify-center h-full items-end">
+<div class="w-6 bg-primary-fixed rounded-t-full" style="height: 45%;"></div>
+</div>
+<span class="font-label-capsule text-label-capsule text-on-surface-variant mt-2">Min</span>
+</div>
+</div>
+</section>
+<!-- Digital Envelope History -->
+<section class="bg-surface-container-lowest rounded-3xl card-shadow overflow-hidden">
+<div class="p-md border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-background">Riwayat Amplop Digital</h3>
+<button class="font-button-text text-button-text text-primary">Lihat Semua</button>
+</div>
+<div class="divide-y divide-outline-variant">
+<!-- List Item 1 -->
+<div class="p-md">
+<div class="flex justify-between items-start mb-1">
+<div class="font-body-lg text-body-lg font-semibold text-on-background">Budi &amp; Siti</div>
+<div class="font-data-numeric text-data-numeric text-success">+ Rp 500.000</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="font-body-sm text-body-sm text-on-surface-variant">12 Okt 2023, 14:30</div>
+<span class="bg-surface-container text-on-surface-variant font-label-capsule text-label-capsule px-2 py-1 rounded-full">Diterima</span>
+</div>
+</div>
+<!-- List Item 2 -->
+<div class="p-md">
+<div class="flex justify-between items-start mb-1">
+<div class="font-body-lg text-body-lg font-semibold text-on-background">Keluarga Wijaya</div>
+<div class="font-data-numeric text-data-numeric text-success">+ Rp 1.000.000</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="font-body-sm text-body-sm text-on-surface-variant">11 Okt 2023, 09:15</div>
+<span class="bg-surface-container text-on-surface-variant font-label-capsule text-label-capsule px-2 py-1 rounded-full">Diterima</span>
+</div>
+</div>
+<!-- List Item 3 -->
+<div class="p-md">
+<div class="flex justify-between items-start mb-1">
+<div class="font-body-lg text-body-lg font-semibold text-on-background">Anonim</div>
+<div class="font-data-numeric text-data-numeric text-success">+ Rp 250.000</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="font-body-sm text-body-sm text-on-surface-variant">10 Okt 2023, 18:45</div>
+<span class="bg-surface-container text-on-surface-variant font-label-capsule text-label-capsule px-2 py-1 rounded-full">Diterima</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Withdrawal History -->
+<section class="bg-surface-container-lowest rounded-3xl card-shadow overflow-hidden">
+<div class="p-md border-b border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-on-background">Riwayat Pengajuan Withdrawal</h3>
+</div>
+<div class="divide-y divide-outline-variant">
+<!-- List Item 1 -->
+<div class="p-md">
+<div class="flex justify-between items-start mb-1">
+<div class="font-body-lg text-body-lg font-semibold text-on-background">Tarik Dana ke BCA</div>
+<div class="font-data-numeric text-data-numeric text-on-background">- Rp 1.500.000</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="font-body-sm text-body-sm text-on-surface-variant">05 Okt 2023</div>
+<span class="bg-tertiary-container text-on-tertiary-container font-label-capsule text-label-capsule px-2 py-1 rounded-full">Selesai</span>
+</div>
+</div>
+<!-- List Item 2 -->
+<div class="p-md">
+<div class="flex justify-between items-start mb-1">
+<div class="font-body-lg text-body-lg font-semibold text-on-background">Tarik Dana ke BCA</div>
+<div class="font-data-numeric text-data-numeric text-on-background">- Rp 500.000</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="font-body-sm text-body-sm text-on-surface-variant">28 Sep 2023</div>
+<span class="bg-tertiary-container text-on-tertiary-container font-label-capsule text-label-capsule px-2 py-1 rounded-full">Selesai</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar (Mobile only) -->
+<nav class="fixed bottom-0 left-0 right-0 bg-surface-container-lowest shadow-[0_-1px_3px_rgba(0,0,0,0.05)] md:hidden flex justify-around items-center h-[72px] pb-safe z-50">
+<!-- Dashboard (Inactive) -->
+<a class="flex flex-col items-center justify-center w-16 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<div class="p-1">
+<span class="material-symbols-outlined">grid_view</span>
+</div>
+<span class="font-label-capsule text-[10px] mt-1">Dashboard</span>
+</a>
+<!-- My Invitations (Inactive) -->
+<a class="flex flex-col items-center justify-center w-16 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<div class="p-1">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<span class="font-label-capsule text-[10px] mt-1 whitespace-nowrap">Undangan</span>
+</a>
+<!-- RSVP (Inactive) -->
+<a class="flex flex-col items-center justify-center w-16 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<div class="p-1">
+<span class="material-symbols-outlined">how_to_reg</span>
+</div>
+<span class="font-label-capsule text-[10px] mt-1">RSVP</span>
+</a>
+<!-- Guestbook (Inactive) -->
+<a class="flex flex-col items-center justify-center w-16 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<div class="p-1">
+<span class="material-symbols-outlined">menu_book</span>
+</div>
+<span class="font-label-capsule text-[10px] mt-1">Buku Tamu</span>
+</a>
+<!-- Finance (Active) -->
+<a class="flex flex-col items-center justify-center w-16" href="#">
+<div class="bg-primary-container text-on-primary-container rounded-full w-12 h-12 flex items-center justify-center mb-1 shadow-md">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</div>
+<span class="font-label-capsule text-[10px] text-on-background font-semibold">Keuangan</span>
+</a>
+</nav>
+<script>
+        // Simple drag-to-confirm logic for visual effect
+        const container = document.getElementById('drag-container');
+        const handle = document.getElementById('drag-handle');
+        const progress = document.getElementById('drag-progress');
+        
+        let isDragging = false;
+        let startX = 0;
+        let currentX = 0;
+        const maxDrag = container ? container.offsetWidth - handle.offsetWidth : 0;
+
+        if (handle) {
+            const startDrag = (e) => {
+                isDragging = true;
+                startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                handle.style.transition = 'none';
+                progress.style.transition = 'none';
+            };
+
+            const doDrag = (e) => {
+                if (!isDragging) return;
+                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                currentX = Math.max(0, Math.min(clientX - startX, container.offsetWidth - handle.offsetWidth));
+                handle.style.transform = `translateX(${currentX}px)`;
+                progress.style.width = `${currentX + 48}px`; // 48 is handle width
+                
+                if (currentX >= container.offsetWidth - handle.offsetWidth - 5) {
+                    // Confirmed state
+                    handle.innerHTML = '<span class="material-symbols-outlined text-success">check</span>';
+                } else {
+                    handle.innerHTML = '<span class="material-symbols-outlined text-primary">arrow_forward</span>';
+                }
+            };
+
+            const endDrag = () => {
+                if (!isDragging) return;
+                isDragging = false;
+                handle.style.transition = 'transform 0.3s ease-out';
+                progress.style.transition = 'width 0.3s ease-out';
+                
+                if (currentX < container.offsetWidth - handle.offsetWidth - 5) {
+                    // Snap back
+                    handle.style.transform = `translateX(0px)`;
+                    progress.style.width = `48px`;
+                    handle.innerHTML = '<span class="material-symbols-outlined text-primary">arrow_forward</span>';
+                } else {
+                    // Stay confirmed
+                    handle.style.transform = `translateX(${container.offsetWidth - handle.offsetWidth}px)`;
+                    progress.style.width = `100%`;
+                    // In a real app, trigger withdrawal here
+                }
+            };
+
+            handle.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', doDrag);
+            document.addEventListener('mouseup', endDrag);
+            
+            handle.addEventListener('touchstart', startDrag);
+            document.addEventListener('touchmove', doDrag);
+            document.addEventListener('touchend', endDrag);
+        }
+    </script>
+</body></html>

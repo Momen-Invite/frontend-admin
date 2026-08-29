@@ -1,0 +1,227 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Momen Invite - Buku Tamu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#514535",
+                        "inverse-on-surface": "#f0f1f3",
+                        "success": "#16a34a",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#e1e2e4",
+                        "on-secondary-container": "#785c2c",
+                        "on-primary-fixed-variant": "#633f00",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#fdd79c",
+                        "on-tertiary-fixed-variant": "#004786",
+                        "on-background": "#191c1e",
+                        "on-tertiary-container": "#004888",
+                        "secondary-fixed": "#ffdeaa",
+                        "tertiary-fixed-dim": "#a6c8ff",
+                        "surface-variant": "#e1e2e4",
+                        "warning": "#b45309",
+                        "tertiary-fixed": "#d4e3ff",
+                        "tertiary": "#005faf",
+                        "on-secondary-fixed": "#271900",
+                        "surface-bright": "#f8f9fb",
+                        "on-primary-container": "#664000",
+                        "on-secondary-fixed-variant": "#5b4314",
+                        "secondary-fixed-dim": "#e5c187",
+                        "surface-dim": "#e5e7eb",
+                        "primary-container": "#f2a93b",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#835400",
+                        "surface-container": "#edeef0",
+                        "outline": "#847563",
+                        "tertiary-container": "#8ab9ff",
+                        "primary-fixed": "#ffddb5",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#ffb956",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#001c3a",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f3f4f6",
+                        "secondary": "#755a2a",
+                        "surface-container-high": "#e7e8ea",
+                        "error": "#dc2626",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f8f9fb",
+                        "inverse-primary": "#ffb956",
+                        "outline-variant": "#d6c3af",
+                        "inverse-surface": "#2e3132",
+                        "primary": "#835400",
+                        "on-primary-fixed": "#2a1800",
+                        "background": "#f8f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "40px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "gutter": "24px",
+                        "md": "16px",
+                        "sidebar-width": "96px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "data-numeric": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "button-text": ["Inter"],
+                        "display": ["Inter"],
+                        "label-capsule": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["18px", { "lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }],
+                        "data-numeric": ["15px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "600" }],
+                        "headline-lg": ["30px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["15px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["22px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "button-text": ["14px", { "lineHeight": "1", "letterSpacing": "0", "fontWeight": "600" }],
+                        "display": ["40px", { "lineHeight": "1.15", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+                        "label-capsule": ["12px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen pb-24 md:pb-0">
+<!-- Header -->
+<header class="flex justify-between items-center px-gutter pt-lg pb-md md:hidden">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface">Buku Tamu</h1>
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container-lowest rounded-full shadow-sm border border-surface-container text-on-surface-variant relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</header>
+<!-- Main Content Area -->
+<main class="flex flex-col gap-md">
+<!-- Summary Card -->
+<section class="px-md md:px-gutter">
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0_1px_2px_rgba(0,0,0,0.05),0_1px_3px_rgba(0,0,0,0.05)] border border-surface-container flex flex-col justify-center h-full">
+<h2 class="font-body-sm text-body-sm text-on-surface-variant mb-xs">Total Ucapan</h2>
+<div class="flex items-baseline gap-sm">
+<span class="font-display text-display text-on-surface">842</span>
+<span class="font-label-capsule text-label-capsule text-success flex items-center bg-success/10 px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px] mr-1">trending_up</span> +12 hari ini
+                    </span>
+</div>
+</div>
+</section>
+<!-- Filter & Search -->
+<section class="px-md md:px-gutter flex gap-sm">
+<div class="flex-1 bg-surface-container-lowest rounded-full px-4 py-3 shadow-sm border border-surface-container flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
+<input class="bg-transparent border-none outline-none w-full font-body-sm text-body-sm text-on-surface placeholder-on-surface-variant p-0 focus:ring-0" placeholder="Cari ucapan atau nama..." type="text">
+</div>
+<button class="bg-surface-container-lowest rounded-full w-12 flex items-center justify-center shadow-sm border border-surface-container text-on-surface-variant hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</section>
+<!-- List of Wishes -->
+<section class="px-md md:px-gutter flex flex-col gap-md pb-xl">
+<!-- Wish Item 1 -->
+<article class="bg-surface-container-lowest rounded-xl p-md shadow-[0_1px_2px_rgba(0,0,0,0.05),0_1px_3px_rgba(0,0,0,0.05)] border border-surface-container flex flex-col gap-md">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-sm">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A professional headshot of a young woman smiling warmly, soft studio lighting, modern minimalist background, highly detailed." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeapGcmVDWSQ4ruQ3uSvO0SWChy8T7bPu1nLHEGVpUtEsM_NzsdBMSK9pZ2WIFep7tdtr0oGSoH74sYfBAiNicquDCpuN46WwoTX4zcZ2oJojYhc0KP44IEOf4krA8LQw0lNMsP8AHfERpB1R__4ykuaxrUkaJatCkNprn419WpkteHLPIbYRT-QpUsfPWIm9kSf9M3e3r-XMlCVvaD_6MduDaakbn6Vdao-fDtViXO6Ota-wZO0f0">
+<div>
+<h3 class="font-data-numeric text-data-numeric text-on-surface">Anabel Grace</h3>
+<time class="font-label-capsule text-label-capsule text-on-surface-variant block mt-xs">12 Jun 2023, 14:30</time>
+</div>
+</div>
+<span class="bg-success/20 text-success px-3 py-1 rounded-full font-label-capsule text-label-capsule">Hadir</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">"Selamat menempuh hidup baru! Semoga bahagia selalu, menjadi keluarga yang sakinah mawaddah warahmah."</p>
+<div class="border-t border-outline-variant/30 pt-sm flex justify-end gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-full transition-colors flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">visibility</span></button>
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-full transition-colors flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">push_pin</span></button>
+<button class="p-2 text-error/70 hover:text-error hover:bg-error/5 rounded-full transition-colors flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</div>
+</article>
+<!-- Wish Item 2 -->
+<article class="bg-surface-container-lowest rounded-xl p-md shadow-[0_1px_2px_rgba(0,0,0,0.05),0_1px_3px_rgba(0,0,0,0.05)] border border-surface-container flex flex-col gap-md">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-data-numeric text-data-numeric">EG</div>
+<div>
+<h3 class="font-data-numeric text-data-numeric text-on-surface">Ethan Gabriel</h3>
+<time class="font-label-capsule text-label-capsule text-on-surface-variant block mt-xs">11 Jun 2023, 09:15</time>
+</div>
+</div>
+<span class="bg-warning/20 text-warning px-3 py-1 rounded-full font-label-capsule text-label-capsule">Ragu-ragu</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">"Maaf sepertinya tidak bisa hadir full time, tapi titip doa yang terbaik untuk kalian berdua ya!"</p>
+<div class="border-t border-outline-variant/30 pt-sm flex justify-end gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-full transition-colors flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">visibility</span></button>
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-full transition-colors flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">push_pin</span></button>
+<button class="p-2 text-error/70 hover:text-error hover:bg-error/5 rounded-full transition-colors flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</div>
+</article>
+<!-- Wish Item 3 -->
+<article class="bg-surface-container-lowest rounded-xl p-md shadow-[0_1px_2px_rgba(0,0,0,0.05),0_1px_3px_rgba(0,0,0,0.05)] border border-surface-container flex flex-col gap-md">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-sm">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a cheerful young man in a smart casual outfit, bright natural lighting, minimalist aesthetic, highly detailed." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhGP8nRpoJiLk40vPkNueu0qVUctwwTbrHz4U4Golxz_KMAhQzgMSA9dEE31-jGGzGfqV0CQACUEmwT5BOXVYkwc3_wNY5-wLzN56lXz6MaXTzhZt65Tqoel2MaJ2bWM9-Co_ZLac5CekPdCGh_4IHlsj8-0wqFG6LiayN2k2rREaO0P53miJ6JkYheo4KYLxfBpHL_WNEqb-743wxtBjQWbq_YG_JfXrAqxVU1I0UBTSa6gqaCL5t">
+<div>
+<h3 class="font-data-numeric text-data-numeric text-on-surface">Marcus Wijaya</h3>
+<time class="font-label-capsule text-label-capsule text-on-surface-variant block mt-xs">10 Jun 2023, 18:45</time>
+</div>
+</div>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-capsule text-label-capsule">Tidak Hadir</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">"Happy wedding bro! Sedih ga bisa ikutan ngrayain bareng, sukses selalu buat lembaran barunya."</p>
+<div class="border-t border-outline-variant/30 pt-sm flex justify-end gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-full transition-colors flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">visibility</span></button>
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-full transition-colors flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">push_pin</span></button>
+<button class="p-2 text-error/70 hover:text-error hover:bg-error/5 rounded-full transition-colors flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</div>
+</article>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) from JSON Component -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 px-4 bg-surface dark:bg-inverse-surface rounded-t-xl md:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-1px_rgba(0,0,0,0.06)]">
+<!-- Home -->
+<button class="flex flex-col items-center justify-center w-16 text-on-surface-variant p-2 scale-95 transition-transform active:bg-surface-variant rounded-xl group">
+<span class="material-symbols-outlined mb-1 group-hover:text-primary transition-colors">home</span>
+<span class="font-label-capsule text-label-capsule text-[10px] group-hover:text-primary transition-colors">Home</span>
+</button>
+<!-- Invites -->
+<button class="flex flex-col items-center justify-center w-16 text-on-surface-variant p-2 scale-95 transition-transform active:bg-surface-variant rounded-xl group">
+<span class="material-symbols-outlined mb-1 group-hover:text-primary transition-colors">mail</span>
+<span class="font-label-capsule text-label-capsule text-[10px] group-hover:text-primary transition-colors">Invites</span>
+</button>
+<!-- RSVPs (Active State for Guestbook Context) -->
+<button class="flex flex-col items-center justify-center w-16 bg-primary-container text-on-primary-container rounded-2xl p-2 scale-95 transition-transform active:bg-surface-variant">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">how_to_reg</span>
+<span class="font-label-capsule text-label-capsule text-[10px]">RSVPs</span>
+</button>
+<!-- Stats -->
+<button class="flex flex-col items-center justify-center w-16 text-on-surface-variant p-2 scale-95 transition-transform active:bg-surface-variant rounded-xl group">
+<span class="material-symbols-outlined mb-1 group-hover:text-primary transition-colors">insert_chart</span>
+<span class="font-label-capsule text-label-capsule text-[10px] group-hover:text-primary transition-colors">Stats</span>
+</button>
+</nav>
+</body></html>

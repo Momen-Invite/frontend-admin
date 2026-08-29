@@ -1,0 +1,413 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Buku Tamu - Momen Invite</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#514535",
+                        "inverse-on-surface": "#f0f1f3",
+                        "success": "#16a34a",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#e1e2e4",
+                        "on-secondary-container": "#785c2c",
+                        "on-primary-fixed-variant": "#633f00",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#fdd79c",
+                        "on-tertiary-fixed-variant": "#004786",
+                        "on-background": "#191c1e",
+                        "on-tertiary-container": "#004888",
+                        "secondary-fixed": "#ffdeaa",
+                        "tertiary-fixed-dim": "#a6c8ff",
+                        "surface-variant": "#e1e2e4",
+                        "warning": "#b45309",
+                        "tertiary-fixed": "#d4e3ff",
+                        "tertiary": "#005faf",
+                        "on-secondary-fixed": "#271900",
+                        "surface-bright": "#f8f9fb",
+                        "on-primary-container": "#664000",
+                        "on-secondary-fixed-variant": "#5b4314",
+                        "secondary-fixed-dim": "#e5c187",
+                        "surface-dim": "#e5e7eb",
+                        "primary-container": "#f2a93b",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#835400",
+                        "surface-container": "#edeef0",
+                        "outline": "#847563",
+                        "tertiary-container": "#8ab9ff",
+                        "primary-fixed": "#ffddb5",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#ffb956",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#001c3a",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f3f4f6",
+                        "secondary": "#755a2a",
+                        "surface-container-high": "#e7e8ea",
+                        "error": "#dc2626",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f8f9fb",
+                        "inverse-primary": "#ffb956",
+                        "outline-variant": "#d6c3af",
+                        "inverse-surface": "#2e3132",
+                        "primary": "#835400",
+                        "on-primary-fixed": "#2a1800",
+                        "background": "#f8f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "3xl": "1.5rem"
+                    },
+                    "spacing": {
+                        "xl": "40px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "gutter": "24px",
+                        "md": "16px",
+                        "sidebar-width": "96px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "data-numeric": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "button-text": ["Inter"],
+                        "display": ["Inter"],
+                        "label-capsule": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["18px", { "lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }],
+                        "data-numeric": ["15px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "600" }],
+                        "headline-lg": ["30px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["15px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["22px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "button-text": ["14px", { "lineHeight": "1", "letterSpacing": "0", "fontWeight": "600" }],
+                        "display": ["40px", { "lineHeight": "1.15", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+                        "label-capsule": ["12px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #f3f4f6; }
+        .shadow-soft { box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.05), 0 4px 16px -4px rgba(0, 0, 0, 0.02); }
+    </style>
+</head>
+<body class="text-on-surface font-body-lg antialiased min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col items-center py-lg space-y-md bg-surface-container-lowest fixed left-0 top-0 h-[calc(100vh-48px)] w-sidebar-width m-lg rounded-3xl shadow-soft z-10">
+<a href="/hub" class="mb-xl flex-shrink-0 flex items-center justify-center w-12 h-12 bg-on-surface text-surface-container-lowest rounded-full font-headline-md italic font-bold hover:opacity-90 transition-opacity">Mi</a>
+<div class="flex-1 flex flex-col items-center space-y-8 w-full">
+<a aria-label="Dashboard" class="flex items-center justify-center bg-primary-container text-on-primary-container rounded-full w-12 h-12 scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+</a>
+
+<!-- Active State -->
+<a aria-label="RSVP" class="flex items-center justify-center text-on-surface-variant w-12 h-12 hover:bg-surface-variant rounded-full transition-colors scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="event_available">event_available</span>
+</a>
+<a aria-label="Analytics" class="flex items-center justify-center text-on-surface-variant w-12 h-12 hover:bg-surface-variant rounded-full transition-colors scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col items-center space-y-6 w-full pt-8">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors scale-95 active:scale-90 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:text-primary" data-icon="settings">settings</span>
+<span class="font-label-capsule text-label-capsule text-[10px]">Settings</span>
+</a>
+</div>
+</nav>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 px-4 bg-surface-container-lowest shadow-lg rounded-t-xl md:hidden">
+<a class="flex flex-col items-center text-on-surface-variant p-2 scale-95 transition-transform active:bg-surface-variant rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-capsule text-label-capsule text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center text-on-surface-variant p-2 scale-95 transition-transform active:bg-surface-variant rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="mail">mail</span>
+<span class="font-label-capsule text-label-capsule text-[10px]">Invites</span>
+</a>
+<a class="flex flex-col items-center bg-primary-container text-on-primary-container rounded-2xl p-2 scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="how_to_reg" data-weight="fill" style="font-variation-settings: 'FILL' 1;">how_to_reg</span>
+<span class="font-label-capsule text-label-capsule text-[10px]">RSVPs</span>
+</a>
+<a class="flex flex-col items-center text-on-surface-variant p-2 scale-95 transition-transform active:bg-surface-variant rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="insert_chart">insert_chart</span>
+<span class="font-label-capsule text-label-capsule text-[10px]">Stats</span>
+</a>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-[calc(96px+48px)] flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-gutter py-md bg-transparent flat no shadows z-10 sticky top-0 backdrop-blur-sm">
+<div class="flex items-center space-x-6">
+<h1 class="font-headline-lg text-headline-lg font-bold text-on-surface hidden md:block">Buku Tamu</h1>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface md:hidden">Buku Tamu</h1>
+</div>
+<div class="flex items-center space-x-4 lg:space-x-8">
+<!-- Search -->
+<div class="relative hidden sm:block w-64 lg:w-96">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full pl-12 pr-4 py-2.5 bg-surface-container-lowest rounded-full border-0 shadow-sm font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:ring-2 focus:ring-primary-container outline-none" placeholder="Cari ucapan atau nama tamu..." type="text">
+</div>
+<!-- Filters Pill -->
+<button class="hidden lg:flex items-center space-x-2 bg-surface-container-lowest px-4 py-2.5 rounded-full shadow-sm hover:bg-surface-variant transition-colors group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]" data-icon="tune">tune</span>
+<span class="font-button-text text-button-text text-on-surface-variant group-hover:text-primary transition-colors">Filters</span>
+</button>
+<!-- Actions -->
+<div class="flex items-center space-x-2">
+<button class="w-10 h-10 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 bg-error rounded-full border-2 border-surface-container-lowest"></span>
+</button>
+</div>
+<!-- Profile -->
+<div class="flex items-center space-x-3 bg-surface-container-lowest rounded-full p-1.5 pr-4 shadow-sm cursor-pointer hover:bg-surface-variant transition-colors">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="A small, circular avatar photo of a professional Indonesian man in his 30s, smiling warmly. He is wearing a neat, light-colored shirt. The background is softly out of focus, typical of a corporate headshot. High key lighting, clean modern aesthetic, bright and optimistic mood, suited for a light-mode UI profile picture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXoorHAG7_AfueUvhy7qPMB5oQm3EqPRPROsF1nxT8nKmpWAQXf-7zENuWDs2GvMOIq73TGniWpYHfG26_N5b9TOXjzuMQvZxvmCvsfUyqMAzq9y2-61rB3dJLNIEIgiXTFwkBQhZpkQGtDwiAX4TPT4U5T2R0VkWnn7xlKK7LODdAJqg_UNewmSeDaRuzGVlYYBSOFoWdbd4_zB82PeEEgUOWD9hobgaehUBl3D7h_feBULWhE53o">
+<div class="hidden md:flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface leading-tight">Budi Santoso</span>
+<span class="font-label-capsule text-label-capsule text-[10px] text-on-surface-variant uppercase">HOST</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] hidden md:block" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+</header>
+<!-- Content Grid -->
+<div class="flex-1 p-4 md:p-gutter grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 pb-24 md:pb-8">
+<!-- Left Column -->
+<div class="lg:col-span-4 flex flex-col space-y-6 lg:space-y-8">
+<!-- Total Card -->
+<div class="bg-surface-container-lowest rounded-3xl p-lg shadow-soft">
+<div class="flex justify-between items-start mb-4">
+<h2 class="font-headline-md text-headline-md text-on-surface">Total Ucapan</h2>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="mark_email_unread">mark_email_unread</span>
+</div>
+<div class="flex flex-col">
+<span class="font-display text-display text-on-surface">42</span>
+<div class="mt-2 flex items-center space-x-2 text-success">
+<span class="material-symbols-outlined text-[16px]" data-icon="trending_up">trending_up</span>
+<span class="font-body-sm text-body-sm font-medium">+5 ucapan baru hari ini</span>
+</div>
+</div>
+</div>
+<!-- Filter & Urutkan Card -->
+<div class="bg-surface-container-lowest rounded-3xl p-lg shadow-soft">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-4">Filter &amp; Urutkan</h2>
+<div class="flex bg-surface-container-low rounded-lg p-1 mb-6">
+<button class="flex-1 py-1.5 px-3 bg-surface-container-lowest shadow-sm rounded-md font-button-text text-button-text text-on-surface">Semua</button>
+<button class="flex-1 py-1.5 px-3 text-on-surface-variant font-button-text text-button-text hover:bg-surface-variant rounded-md transition-colors">Ditampilkan</button>
+<button class="flex-1 py-1.5 px-3 text-on-surface-variant font-button-text text-button-text hover:bg-surface-variant rounded-md transition-colors">Disembunyikan</button>
+</div>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg py-2.5 px-4 pr-10 font-body-sm text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container">
+<option>Terbaru (Default)</option>
+<option>Terlama</option>
+<option>Status: Ditampilkan</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Chart Card -->
+<div class="bg-surface-container-lowest rounded-3xl p-lg shadow-soft flex-1 flex flex-col relative">
+<div class="flex justify-between items-start mb-6">
+<h2 class="font-headline-md text-headline-md text-on-surface">Ucapan Masuk</h2>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
+</button>
+</div>
+<div class="flex-1 flex items-end justify-between space-x-2 pt-12 relative min-h-[160px]">
+<!-- Bars -->
+<div class="flex flex-col items-center space-y-2 flex-1">
+<div class="w-full max-w-[24px] bg-secondary-fixed rounded-t-full h-8"></div>
+<span class="font-label-capsule text-label-capsule text-[10px] text-on-surface-variant uppercase">Sen</span>
+</div>
+<div class="flex flex-col items-center space-y-2 flex-1">
+<div class="w-full max-w-[24px] bg-secondary-fixed rounded-t-full h-16"></div>
+<span class="font-label-capsule text-label-capsule text-[10px] text-on-surface-variant uppercase">Sel</span>
+</div>
+<div class="flex flex-col items-center space-y-2 flex-1">
+<div class="w-full max-w-[24px] bg-secondary-fixed rounded-t-full h-10"></div>
+<span class="font-label-capsule text-label-capsule text-[10px] text-on-surface-variant uppercase">Rab</span>
+</div>
+<!-- Active Bar with Tooltip -->
+<div class="flex flex-col items-center space-y-2 flex-1 relative group">
+<!-- Tooltip -->
+<div class="absolute -top-14 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-3 py-1.5 rounded-lg text-center shadow-lg z-10 whitespace-nowrap after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-inverse-surface">
+<div class="font-data-numeric text-data-numeric text-on-primary leading-none mb-1">12 Ucapan</div>
+<div class="font-label-capsule text-[9px] text-surface-variant opacity-80 leading-none">Kamis, 15 Jun</div>
+</div>
+<!-- Active Bar -->
+<div class="w-full max-w-[24px] bg-primary-container rounded-t-full h-28 relative">
+<div class="absolute -top-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-inverse-surface rounded-full border border-surface-container-lowest"></div>
+</div>
+<span class="font-label-capsule text-label-capsule text-[10px] text-on-surface font-bold uppercase">Kam</span>
+</div>
+<div class="flex flex-col items-center space-y-2 flex-1">
+<div class="w-full max-w-[24px] bg-secondary-fixed rounded-t-full h-14"></div>
+<span class="font-label-capsule text-label-capsule text-[10px] text-on-surface-variant uppercase">Jum</span>
+</div>
+<div class="flex flex-col items-center space-y-2 flex-1">
+<div class="w-full max-w-[24px] bg-secondary-fixed rounded-t-full h-20"></div>
+<span class="font-label-capsule text-label-capsule text-[10px] text-on-surface-variant uppercase">Sab</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column -->
+<div class="lg:col-span-8">
+<div class="bg-surface-container-lowest rounded-3xl p-md lg:p-lg shadow-soft h-full flex flex-col">
+<div class="flex justify-between items-center mb-6 px-2">
+<h2 class="font-headline-md text-headline-md text-on-surface">Semua Ucapan</h2>
+<button class="text-on-surface-variant hover:text-primary transition-colors text-body-sm font-medium">Lihat Semua</button>
+</div>
+<div class="overflow-x-auto flex-1">
+<table class="w-full text-left border-collapse min-w-[700px]">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-3 px-4 font-label-capsule text-label-capsule text-on-surface-variant font-medium">TAMU</th>
+<th class="py-3 px-4 font-label-capsule text-label-capsule text-on-surface-variant font-medium">UCAPAN</th>
+<th class="py-3 px-4 font-label-capsule text-label-capsule text-on-surface-variant font-medium whitespace-nowrap">WAKTU</th>
+<th class="py-3 px-4 font-label-capsule text-label-capsule text-on-surface-variant font-medium text-center">STATUS</th>
+<th class="py-3 px-4 font-label-capsule text-label-capsule text-on-surface-variant font-medium text-right">AKSI</th>
+</tr>
+</thead>
+<tbody>
+<!-- Row 1 -->
+<tr class="border-b border-outline-variant/50 hover:bg-surface-bright transition-colors group">
+<td class="py-4 px-4">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface font-headline-md font-bold shrink-0">
+                                                A
+                                            </div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Anisa Rahma</span>
+<span class="font-label-capsule text-[10px] text-on-surface-variant">Teman Kampus</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 w-2/5">
+<p class="font-body-sm text-body-sm text-on-surface-variant italic truncate max-w-[200px] lg:max-w-[280px]">"Selamat menempuh hidup baru ya! Semoga sakina mawadah warahmah, maaf belum bisa hadir karna di luar kota."</p>
+</td>
+<td class="py-4 px-4 font-data-numeric text-data-numeric text-on-surface-variant font-normal text-[13px] whitespace-nowrap">
+                                        2 jam lalu
+                                    </td>
+<td class="py-4 px-4 text-center">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-capsule text-[10px] leading-none whitespace-nowrap">
+                                            DITAMPILKAN
+                                        </span>
+</td>
+<td class="py-4 px-4 text-right whitespace-nowrap">
+<div class="flex items-center justify-end space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-variant hover:text-primary rounded-md transition-colors" title="Lihat">
+<span class="material-symbols-outlined text-[18px]" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-variant hover:text-primary rounded-md transition-colors" title="Sematkan">
+<span class="material-symbols-outlined text-[18px]" data-icon="push_pin">push_pin</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-error-container hover:text-error rounded-md transition-colors" title="Hapus">
+<span class="material-symbols-outlined text-[18px]" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-outline-variant/50 hover:bg-surface-bright transition-colors group">
+<td class="py-4 px-4">
+<div class="flex items-center space-x-3">
+<img class="w-10 h-10 rounded-full object-cover shrink-0" data-alt="A small, circular avatar photo of a middle-aged Indonesian man, smiling politely. He is wearing a formal batik shirt. Soft, blurred background suggesting an indoor event. High key lighting, clean corporate style, suitable for a light-mode list UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAovVC_pBWmh2N22UmC8rFJ3g9IGcX5JWc9zMLDliIhah1TUCQt06aZYPLZ_xEt0eDybKch4YqER_A4-XG6MKcfuag-G6pxUcsa1IIiSlLRJXTmOntkGEz-MMrRQuWumXd3PA0lmynucZGoMb67qHF1Lwj47QAilZ2yUecon-gBJ9a4PtR57rygsVzer-nLttrVJF6Rm6AKZ3i2ZtERCtI0CR-h_PeymtrrE5_AFPEaTA_NPDM_b2l9">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Pak RT 04</span>
+<span class="font-label-capsule text-[10px] text-on-surface-variant">Tetangga</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 w-2/5">
+<p class="font-body-sm text-body-sm text-on-surface-variant italic truncate max-w-[200px] lg:max-w-[280px]">"Selamat berbahagia nak Budi. Semoga rukun selalu sampai kakek nenek."</p>
+</td>
+<td class="py-4 px-4 font-data-numeric text-data-numeric text-on-surface-variant font-normal text-[13px] whitespace-nowrap">
+                                        5 jam lalu
+                                    </td>
+<td class="py-4 px-4 text-center">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-label-capsule text-[10px] leading-none whitespace-nowrap">
+                                            DISEMBUNYIKAN
+                                        </span>
+</td>
+<td class="py-4 px-4 text-right whitespace-nowrap">
+<div class="flex items-center justify-end space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-variant hover:text-primary rounded-md transition-colors" title="Lihat">
+<span class="material-symbols-outlined text-[18px]" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-variant hover:text-primary rounded-md transition-colors" title="Sematkan">
+<span class="material-symbols-outlined text-[18px]" data-icon="push_pin">push_pin</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-error-container hover:text-error rounded-md transition-colors" title="Hapus">
+<span class="material-symbols-outlined text-[18px]" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="py-4 px-4">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed font-headline-md font-bold shrink-0">
+                                                D
+                                            </div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Dimas &amp; Keluarga</span>
+<span class="font-label-capsule text-[10px] text-on-surface-variant">Keluarga</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 w-2/5">
+<p class="font-body-sm text-body-sm text-on-surface-variant italic truncate max-w-[200px] lg:max-w-[280px]">"Lancar sampai hari H ya! Gak sabar mau nyumbang lagu nanti wkwk."</p>
+</td>
+<td class="py-4 px-4 font-data-numeric text-data-numeric text-on-surface-variant font-normal text-[13px] whitespace-nowrap">
+                                        Kemarin
+                                    </td>
+<td class="py-4 px-4 text-center">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-capsule text-[10px] leading-none whitespace-nowrap">
+                                            DITAMPILKAN
+                                        </span>
+</td>
+<td class="py-4 px-4 text-right whitespace-nowrap">
+<div class="flex items-center justify-end space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-variant hover:text-primary rounded-md transition-colors" title="Lihat">
+<span class="material-symbols-outlined text-[18px]" data-icon="visibility">visibility</span>
+</button>
+<button class="p-1.5 text-primary hover:bg-surface-variant rounded-md transition-colors" title="Sematkan">
+<span class="material-symbols-outlined text-[18px]" data-icon="push_pin" data-weight="fill" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-error-container hover:text-error rounded-md transition-colors" title="Hapus">
+<span class="material-symbols-outlined text-[18px]" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+
+</body></html>

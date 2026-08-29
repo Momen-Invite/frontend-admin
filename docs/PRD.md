@@ -581,7 +581,7 @@ erDiagram
 | **Frontend Admin** | Next.js / Vite + React | `18 / 19` | Panel Super Admin & Staf, visualisasi analitik Recharts, shadcn/ui components. |
 | **Frontend Ultah Client**| Next.js App Router | `16.2.1` | Template publik ulang tahun (`frontent-ultah-v1`), SSR dinamis, ISR 60s, Lucide React. |
 | **Styling & UI Kit** | Tailwind CSS + `shadcn/ui`| PostCSS / v4 | Utilitas styling modern, komponen primitif Radix/Base UI yang aksesibel. |
-| **Animasi & Interaksi**| Canvas Confetti + GSAP | Latest | Efek visual hujan konfeti, transisi kartu seksi emosional, audio player hook. |
+| **Animasi & Interaksi**| Canvas Confetti + GSAP dan Frammer motion| Latest | Efek visual hujan konfeti, transisi kartu seksi emosional, audio player hook. |
 | **Payment Gateway** | Duitku API | v2 | Integrasi QRIS Dinamis dan Virtual Account dengan validasi signature HMAC. |
 | **Notifikasi Gateway**| Fonnte (WA) + Resend (Email)| REST API | Pengiriman notifikasi OTP, notifikasi kado masuk, dan peringatan withdrawal. |
 | **Pengujian (Testing)**| Vitest + Supertest | Latest | Unit testing cepat, API contract testing, skenario OWASP Top 10 security testing. |

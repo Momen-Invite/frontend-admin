@@ -1,0 +1,243 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>RSVP &amp; Tamu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#edeef0",
+                        "on-surface-variant": "#6b7280",
+                        "outline-variant": "#d6c3af",
+                        "outline": "#847563",
+                        "inverse-surface": "#2e3132",
+                        "warning": "#b45309",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#755a2a",
+                        "surface-container-low": "#f3f4f6",
+                        "inverse-primary": "#ffb956",
+                        "surface-dim": "#d9dadc",
+                        "inverse-on-surface": "#f0f1f3",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#ffddb5",
+                        "on-primary-fixed-variant": "#633f00",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#8ab9ff",
+                        "on-primary-container": "#664000",
+                        "primary-container": "#f2a93b",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#2a1800",
+                        "tertiary": "#005faf",
+                        "tertiary-fixed": "#d4e3ff",
+                        "error": "#dc2626",
+                        "surface-tint": "#835400",
+                        "surface": "#f8f9fb",
+                        "surface-container-highest": "#e1e2e4",
+                        "primary-fixed-dim": "#ffb956",
+                        "surface-bright": "#f8f9fb",
+                        "secondary-container": "#fdd79c",
+                        "on-tertiary-fixed": "#001c3a",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#785c2c",
+                        "background": "#f8f9fb",
+                        "on-background": "#191c1e",
+                        "success": "#16a34a",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdeaa",
+                        "surface-variant": "#e1e2e4",
+                        "on-tertiary-container": "#004888",
+                        "on-tertiary-fixed-variant": "#004786",
+                        "secondary-fixed-dim": "#e5c187",
+                        "on-secondary-fixed-variant": "#5b4314",
+                        "tertiary-fixed-dim": "#a6c8ff",
+                        "on-surface": "#191c1e",
+                        "on-secondary-fixed": "#271900",
+                        "surface-container-high": "#e7e8ea",
+                        "primary": "#835400"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "sidebar-width": "96px",
+                        "xl": "40px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-capsule": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "display": ["Inter"],
+                        "button-text": ["Inter"],
+                        "data-numeric": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["15px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }],
+                        "label-capsule": ["12px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["22px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "display": ["40px", { "lineHeight": "1.15", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+                        "button-text": ["14px", { "lineHeight": "1", "letterSpacing": "0", "fontWeight": "600" }],
+                        "data-numeric": ["15px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "600" }],
+                        "headline-md": ["18px", { "lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg": ["30px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-sm min-h-screen pb-20">
+<!-- Top Navigation Bar -->
+<header class="flex justify-between items-center w-full px-4 py-md bg-transparent">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary dark:text-primary-fixed-dim">RSVP &amp; Tamu</h1>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant opacity-80 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="text-on-surface-variant opacity-80 hover:opacity-100 transition-opacity relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<img alt="User Avatar" class="w-8 h-8 rounded-full object-cover" data-alt="A small circular avatar of a young professional in a light, modern corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7D_Usr3SgMMgbmlgvciIfmp9Tz-TaFlCnvu47kj7BUh0qHyUIH9WkGHSUJAX-TcA5YfckbfGyWu7NxVN_O1WB_s9H9LdrhI2laRh-6k63HFUTmCW6SREZMACZBBXgRDQbPduQ3CBDfJlFJgxNvJQ7JXpwQX_p6i9cGlEG5I-zLspPHUGG6aryV0FUoDm03b-dhNGxzML6wPgIXuFZjVkxfUmddgdUTQ2BWATlYNXWOCVE78TFnHUl">
+</div>
+</header>
+<!-- Main Content -->
+<main class="px-4 space-y-md">
+<!-- Summary Stats Card -->
+<section class="bg-surface-container-lowest rounded-3xl p-md shadow-sm">
+<h2 class="font-headline-md text-headline-md mb-4">Ringkasan Kehadiran</h2>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-3 bg-surface rounded-2xl">
+<p class="text-on-surface-variant font-body-sm">Hadir</p>
+<p class="font-display text-display text-primary">120</p>
+</div>
+<div class="p-3 bg-surface rounded-2xl">
+<p class="text-on-surface-variant font-body-sm">Belum Respon</p>
+<p class="font-display text-display text-on-surface">45</p>
+</div>
+</div>
+</section>
+<!-- Add Guest Form -->
+<section class="bg-surface-container-lowest rounded-3xl p-md shadow-sm">
+<h2 class="font-headline-md text-headline-md mb-4">Tambah Tamu</h2>
+<form class="space-y-3">
+<input class="w-full bg-surface border-none rounded-xl px-4 py-3 font-body-sm text-on-surface focus:ring-2 focus:ring-primary-container" placeholder="Nama Lengkap" type="text">
+<input class="w-full bg-surface border-none rounded-xl px-4 py-3 font-body-sm text-on-surface focus:ring-2 focus:ring-primary-container" placeholder="Email" type="email">
+<button class="w-full bg-primary-container text-on-primary-container rounded-xl py-3 font-button-text text-button-text hover:bg-inverse-primary transition-colors" type="button">
+                    Kirim Undangan
+                </button>
+</form>
+</section>
+<!-- Confirmation Trends -->
+<section class="bg-surface-container-lowest rounded-3xl p-md shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-headline-md text-headline-md">Tren Konfirmasi</h2>
+<span class="material-symbols-outlined text-on-surface-variant">more_horiz</span>
+</div>
+<div class="h-32 flex items-end gap-2 justify-around">
+<!-- Mock Chart Bars -->
+<div class="w-6 bg-secondary-fixed rounded-t-full" style="height: 40%"></div>
+<div class="w-6 bg-secondary-fixed rounded-t-full" style="height: 60%"></div>
+<div class="w-6 bg-secondary-fixed rounded-t-full" style="height: 30%"></div>
+<div class="w-6 bg-primary-container rounded-t-full relative" style="height: 80%">
+<!-- Tooltip -->
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-on-tertiary px-2 py-1 rounded-lg text-xs whitespace-nowrap">
+                        12 Jun
+                    </div>
+</div>
+<div class="w-6 bg-secondary-fixed rounded-t-full" style="height: 50%"></div>
+<div class="w-6 bg-secondary-fixed rounded-t-full" style="height: 70%"></div>
+</div>
+<div class="flex justify-around mt-2 text-xs text-on-surface-variant">
+<span>Mon</span><span>Tue</span><span>Wed</span><span class="font-bold text-on-surface">Thu</span><span>Fri</span><span>Sat</span>
+</div>
+</section>
+<!-- Guest List (List Cards) -->
+<section class="space-y-3">
+<h2 class="font-headline-md text-headline-md px-2">Daftar Konfirmasi</h2>
+<!-- List Card 1 -->
+<div class="bg-surface-container-lowest rounded-3xl p-4 shadow-sm flex flex-col gap-3">
+<div class="flex items-center gap-3 border-b border-surface-variant pb-3">
+<img alt="Sarah Jenkins" class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a smiling young woman in a minimal corporate setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmMx5dFgxAn81TGo-udBU4bJ0PgpqeoG0VwOZ06LGiIfmd3YJPaosr11rsoZFMz6F6JAd8ZFlxBrvVKee5xJreSb-Z68E9OR8KENor3Aoc7OV4Uyy96M0_iaHHTHK_6u7aI6ss0KWT_OUS-T4MrVH6tEuNOtO-QlmtMGhwFmnuvJjQBFh1ATa5EbndfmO2ywuFE3intdm_WfumUrvJKn0of_R9Qcemfpwpytd7Vn3ZYgVs6MLlI-uF">
+<div>
+<p class="font-data-numeric text-data-numeric text-on-surface">Sarah Jenkins</p>
+<p class="text-on-surface-variant font-body-sm text-xs">sarah.j@example.com</p>
+</div>
+</div>
+<div class="flex justify-between items-center pt-1">
+<span class="bg-tertiary-fixed text-on-tertiary-container px-3 py-1 rounded-full font-label-capsule text-label-capsule">Hadir</span>
+<span class="text-on-surface-variant text-xs">2 hours ago</span>
+</div>
+</div>
+<!-- List Card 2 -->
+<div class="bg-surface-container-lowest rounded-3xl p-4 shadow-sm flex flex-col gap-3">
+<div class="flex items-center gap-3 border-b border-surface-variant pb-3">
+<img alt="Michael Chen" class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a professional man in a crisp shirt." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1szIhAStwyLDIc3xkItHiv2vPunxpXFFvE_fAKw1r5seHYeot1DQuZmqEIT1gE93qqhe508v_UjFDu5LAyuUG1znDxiNuz2hSH7QJdiEBj-H5rf_wReSNFzq3zTpot6RWmyi_YYUiSQP2Wp1nPpnFlEe8w04dz7hvFFW-eTlSn2zRQfy_qnNKYYoWrJ_1Y6nK5Q_qfzKtH9EBDfwy8FzR7dv2PRoPKxn2Eplpa42rGwkVb_-0BJVW">
+<div>
+<p class="font-data-numeric text-data-numeric text-on-surface">Michael Chen</p>
+<p class="text-on-surface-variant font-body-sm text-xs">m.chen@example.com</p>
+</div>
+</div>
+<div class="flex justify-between items-center pt-1">
+<span class="bg-error-container text-on-error-container px-3 py-1 rounded-full font-label-capsule text-label-capsule">Tidak Hadir</span>
+<span class="text-on-surface-variant text-xs">1 day ago</span>
+</div>
+</div>
+<!-- List Card 3 -->
+<div class="bg-surface-container-lowest rounded-3xl p-4 shadow-sm flex flex-col gap-3">
+<div class="flex items-center gap-3 border-b border-surface-variant pb-3">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+<div>
+<p class="font-data-numeric text-data-numeric text-on-surface">Anna Smith</p>
+<p class="text-on-surface-variant font-body-sm text-xs">anna.smith@example.com</p>
+</div>
+</div>
+<div class="flex justify-between items-center pt-1">
+<span class="bg-surface-variant text-on-surface px-3 py-1 rounded-full font-label-capsule text-label-capsule">Menunggu</span>
+<span class="text-on-surface-variant text-xs">-</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 px-4 bg-surface dark:bg-inverse-surface shadow-lg rounded-t-xl md:hidden">
+<button class="text-on-surface-variant p-2 scale-95 transition-transform active:bg-surface-variant flex flex-col items-center gap-1">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-capsule text-label-capsule hidden">Home</span>
+</button>
+<button class="text-on-surface-variant p-2 scale-95 transition-transform active:bg-surface-variant flex flex-col items-center gap-1">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+<span class="font-label-capsule text-label-capsule hidden">Invites</span>
+</button>
+<button class="bg-primary-container text-on-primary-container rounded-2xl p-2 scale-95 transition-transform flex flex-col items-center gap-1">
+<span class="material-symbols-outlined" data-icon="how_to_reg" style="font-variation-settings: 'FILL' 1;">how_to_reg</span>
+<span class="font-label-capsule text-label-capsule hidden">RSVPs</span>
+</button>
+<button class="text-on-surface-variant p-2 scale-95 transition-transform active:bg-surface-variant flex flex-col items-center gap-1">
+<span class="material-symbols-outlined" data-icon="insert_chart">insert_chart</span>
+<span class="font-label-capsule text-label-capsule hidden">Stats</span>
+</button>
+</nav>
+</body></html>

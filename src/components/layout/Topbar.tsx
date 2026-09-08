@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { UserNav } from "@/components/layout/UserNav";
 
 interface TopbarProps {
   /** Judul halaman yang ditampilkan di kiri */
@@ -13,7 +14,7 @@ interface TopbarProps {
 
 export function Topbar({
   title,
-  searchPlaceholder = "Cari transaksi...",
+  searchPlaceholder = "Cari order atau host...",
 }: TopbarProps) {
   const [hasNotif] = useState(true);
 
@@ -54,24 +55,8 @@ export function Topbar({
           )}
         </button>
 
-        {/* User Profile Chip */}
-        <button
-          type="button"
-          className="flex items-center gap-2 bg-surface-container-lowest rounded-full p-1 sm:pr-3.5 shadow-sm hover:bg-surface-bright transition-colors border border-transparent hover:border-outline-variant focus:outline-none"
-          title="Profil Admin"
-        >
-          <div className="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs select-none">
-            AD
-          </div>
-          <div className="hidden sm:flex flex-col items-start leading-none text-left">
-            <span className="text-button-text font-button-text text-on-background text-xs sm:text-sm">
-              Admin
-            </span>
-            <span className="text-[9px] sm:text-[10px] text-on-surface-variant uppercase tracking-wider font-bold">
-              SUPER ADMIN
-            </span>
-          </div>
-        </button>
+        {/* User Profile Dropdown */}
+        <UserNav />
       </div>
     </header>
   );

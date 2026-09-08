@@ -43,13 +43,22 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
     }
   }
 
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    ...(customConfig.headers as Record<string, string>),
+  };
+
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("momen_admin_token");
+    if (token && !headers["Authorization"]) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+
   const config: RequestInit = {
     method: options.method || "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      ...customConfig.headers,
-    },
+    headers,
     // Required for cookie session authentication (admin_sessions / connect.sid)
     credentials: "include",
     ...customConfig,

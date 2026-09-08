@@ -74,10 +74,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(adminData);
       setIsAuthenticated(true);
 
-      // Simpan status login
+      // Simpan status login & token
       if (typeof window !== "undefined") {
         localStorage.setItem(STORAGE_KEY_AUTH, "true");
         localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(adminData));
+        if (responseData?.token) {
+          localStorage.setItem("momen_admin_token", responseData.token);
+        }
         setAuthCookie("1");
       }
 
@@ -110,6 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (typeof window !== "undefined") {
         localStorage.removeItem(STORAGE_KEY_AUTH);
         localStorage.removeItem(STORAGE_KEY_USER);
+        localStorage.removeItem("momen_admin_token");
         removeAuthCookie();
       }
 

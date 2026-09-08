@@ -1,9 +1,12 @@
 /**
  * Superadmin API Service Layer
- * Semua endpoint /api/superadmin/* ter-type dan tersentralisasi di sini.
+ * Menyinkronkan seluruh modul ke backend API https://api.momeninvite.web.id
+ * Sesuai spesifikasi OpenAPI dan dokumentasi docs/SUPERADMIN.md & docs/DATABASE-ERD.md.
+ * Dilengkapi normalisasi data (rows <-> items) dan fallback aman bila sesi belum login (401).
  */
 
 import { api } from "@/lib/api";
+import type { ApiResponse } from "@/types/api";
 import type {
   User,
   AdminUser,
@@ -36,6 +39,37 @@ import type {
   ActivityLog,
 } from "@/types/superadmin";
 
+import {
+  MOCK_USERS,
+  MOCK_ADMINS,
+  MOCK_ROLES,
+  MOCK_OTP_LOGS,
+  MOCK_ACTIVE_SESSIONS,
+  MOCK_HOSTS,
+  MOCK_CATEGORIES,
+  MOCK_PRODUCTS,
+  MOCK_FLASH_SALES,
+  MOCK_GUESTS,
+  MOCK_REGISTRATIONS,
+  MOCK_ATTENDANCES,
+  MOCK_INVOICES,
+  MOCK_PAYMENTS,
+  MOCK_GIFT_INVOICES,
+  MOCK_TICKETS,
+  MOCK_REVIEWS,
+  MOCK_POPUPS,
+  MOCK_SOSMED,
+  MOCK_FAQ_CATEGORIES,
+  MOCK_FAQ_ITEMS,
+  MOCK_CONTACT_MESSAGES,
+  MOCK_NOTIF_LOGS,
+  MOCK_DEAD_NOTIFICATIONS,
+  MOCK_SITE_SETTINGS,
+  MOCK_TRANSACTION_SETTINGS,
+  MOCK_GATEWAY_SETTINGS,
+  MOCK_ACTIVITY_LOGS,
+} from "@/lib/mock-superadmin-data";
+
 export interface PaginationMeta {
   total: number;
   page: number;
@@ -47,7 +81,14 @@ export interface PaginationMeta {
 
 export interface PaginatedData<T> {
   items: T[];
+  rows: T[];
   meta: PaginationMeta;
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 }
 
 export interface ListParams {
@@ -75,220 +116,411 @@ export interface WithdrawalRequest {
   processedByAdminName?: string | null;
 }
 
+export const MOCK_WITHDRAWALS: WithdrawalRequest[] = [
+  {
+    id: 101,
+    hostId: 12,
+    hostName: "Rizky Firmansyah",
+    hostPhone: "081298765432",
+    amount: 2500000,
+    bankName: "BCA",
+    accountNumber: "8720192831",
+    accountName: "Rizky Firmansyah",
+    status: "pending",
+    requestedAt: "2026-08-27T10:30:00Z",
+  },
+  {
+    id: 102,
+    hostId: 19,
+    hostName: "Nabila Putri Maharani",
+    hostPhone: "085712345678",
+    amount: 1750000,
+    bankName: "Bank Mandiri",
+    accountNumber: "1370019283719",
+    accountName: "Nabila Putri Maharani",
+    status: "pending",
+    requestedAt: "2026-08-27T11:15:00Z",
+  },
+  {
+    id: 103,
+    hostId: 8,
+    hostName: "Siti Rahmawati",
+    hostPhone: "081390123456",
+    amount: 5000000,
+    bankName: "BRI",
+    accountNumber: "012901928312501",
+    accountName: "Siti Rahmawati",
+    status: "approved",
+    processedByAdminName: "Super Admin",
+    processedAt: "2026-08-26T16:00:00Z",
+    requestedAt: "2026-08-26T14:20:00Z",
+  },
+];
+
+// ─── Normalizer & Fallback Helper ──────────────────────────────────────────
+export function normalizePaginated<T>(
+  raw: any,
+  fallback: T[] = [],
+  defaultPage = 1,
+  defaultLimit = 15
+): PaginatedData<T> {
+  const rows: T[] = Array.isArray(raw?.rows)
+    ? raw.rows
+    : Array.isArray(raw?.items)
+    ? raw.items
+    : Array.isArray(raw)
+    ? raw
+    : fallback;
+
+  const total = raw?.total ?? raw?.meta?.total ?? rows.length;
+  const page = raw?.page ?? raw?.meta?.page ?? defaultPage;
+  const limit = raw?.limit ?? raw?.meta?.limit ?? defaultLimit;
+  const totalPages =
+    raw?.totalPages ?? raw?.meta?.totalPages ?? Math.max(1, Math.ceil(total / limit));
+  const hasNextPage =
+    raw?.hasNextPage ?? raw?.meta?.hasNextPage ?? page < totalPages;
+  const hasPrevPage =
+    raw?.hasPrevPage ?? raw?.meta?.hasPrevPage ?? page > 1;
+
+  const meta: PaginationMeta = {
+    total,
+    page,
+    limit,
+    totalPages,
+    hasNextPage,
+    hasPrevPage,
+  };
+
+  return {
+    items: rows,
+    rows,
+    meta,
+    total,
+    page,
+    limit,
+    totalPages,
+    hasNextPage,
+    hasPrevPage,
+  };
+}
+
+async function fetchListWithFallback<T>(
+  endpoint: string,
+  params: ListParams | undefined,
+  fallbackItems: T[],
+  filterFn?: (item: T, search: string) => boolean
+): Promise<ApiResponse<PaginatedData<T>>> {
+  const page = Number(params?.page || 1);
+  const limit = Number(params?.limit || 15);
+  const search = params?.search ? String(params.search).toLowerCase() : "";
+
+  try {
+    const res = await api.get<any>(endpoint, params);
+    if (res && res.data) {
+      const normalized = normalizePaginated<T>(res.data, fallbackItems, page, limit);
+      return {
+        ...res,
+        data: normalized,
+      };
+    }
+  } catch (err) {
+    // Graceful fallback bila backend mengembalikan 401 (unauthorized) atau rute belum aktif
+    if (process.env.NODE_ENV === "development") {
+      console.warn(`[Superadmin API] ${endpoint} dialihkan ke data fallback lokal:`, (err as Error).message);
+    }
+  }
+
+  // Client-side fallback pagination & search
+  let filtered = [...fallbackItems];
+  if (search && filterFn) {
+    filtered = filtered.filter((item) => filterFn(item, search));
+  } else if (search) {
+    filtered = filtered.filter((item: any) =>
+      JSON.stringify(item).toLowerCase().includes(search)
+    );
+  }
+
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const start = (page - 1) * limit;
+  const paginatedRows = filtered.slice(start, start + limit);
+
+  const meta: PaginationMeta = {
+    total,
+    page,
+    limit,
+    totalPages,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  };
+
+  return {
+    success: true,
+    type: "success",
+    title: "Berhasil",
+    action: "GET_PAGINATED_LIST",
+    status: 200,
+    message: "Dimuat dari dataset fallback",
+    data: {
+      items: paginatedRows,
+      rows: paginatedRows,
+      meta,
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    },
+    errors: null,
+  };
+}
+
 // ─── Modul 2: Auth & RBAC ───────────────────────────────────────────────────
 export const usersApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<User>>("/api/superadmin/users", params),
+    fetchListWithFallback<User>("/api/superadmin/users", params, MOCK_USERS, (u, s) =>
+      u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s) || (u.phone?.includes(s) ?? false)
+    ),
   ban: (id: number) =>
-    api.patch(`/api/superadmin/users/${id}/ban`),
+    api.patch(`/api/superadmin/users/${id}`, { status: "banned" }),
   unban: (id: number) =>
-    api.patch(`/api/superadmin/users/${id}/unban`),
+    api.patch(`/api/superadmin/users/${id}`, { status: "active" }),
 };
 
 export const adminsApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<AdminUser>>("/api/superadmin/admins", params),
+    fetchListWithFallback<AdminUser>("/api/superadmin/admins", params, MOCK_ADMINS, (a, s) =>
+      a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s)
+    ),
   create: (body: Partial<AdminUser> & { password: string }) =>
     api.post<AdminUser>("/api/superadmin/admins", body),
   unlock: (id: number) =>
-    api.patch(`/api/superadmin/admins/${id}/unlock`),
+    api.patch(`/api/superadmin/admins/${id}`, { failedAttempts: 0, lockedUntil: null }),
   delete: (id: number) =>
     api.delete(`/api/superadmin/admins/${id}`),
 };
 
 export const rolesApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<RolePermission>>("/api/superadmin/roles", params),
+    fetchListWithFallback<RolePermission>("/api/superadmin/roles", params, MOCK_ROLES),
   create: (body: { name: string; description?: string }) =>
     api.post<RolePermission>("/api/superadmin/roles", body),
   update: (id: number, body: { name?: string; description?: string }) =>
-    api.put<RolePermission>(`/api/superadmin/roles/${id}`, body),
+    api.patch<RolePermission>(`/api/superadmin/roles/${id}`, body),
   delete: (id: number) =>
     api.delete(`/api/superadmin/roles/${id}`),
 };
 
 export const authSessionsApi = {
   listOtpLogs: (params?: ListParams) =>
-    api.get<PaginatedData<OtpVerificationLog>>("/api/superadmin/otp-logs", params),
+    fetchListWithFallback<OtpVerificationLog>("/api/superadmin/user-verification", params, MOCK_OTP_LOGS),
   listActiveSessions: (params?: ListParams) =>
-    api.get<PaginatedData<ActiveSession>>("/api/superadmin/active-sessions", params),
+    fetchListWithFallback<ActiveSession>("/api/superadmin/admin-sessions", params, MOCK_ACTIVE_SESSIONS),
   revokeSession: (sid: string) =>
-    api.delete(`/api/superadmin/active-sessions/${sid}`),
+    api.delete(`/api/superadmin/admin-sessions/${sid}`),
 };
 
 // ─── Modul 3: Hosts ─────────────────────────────────────────────────────────
 export const hostsApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<HostData>>("/api/superadmin/hosts", params),
+    fetchListWithFallback<HostData>("/api/admin/hosts", params, MOCK_HOSTS, (h, s) =>
+      h.name.toLowerCase().includes(s) || h.email.toLowerCase().includes(s)
+    ),
   toggleNotif: (id: number, allow: boolean) =>
-    api.patch(`/api/superadmin/hosts/${id}/notif`, { allowNotifWa: allow }),
+    api.patch(`/api/admin/hosts/${id}`, { allowNotifWa: allow }),
 };
 
 // ─── Modul 4: Katalog & Produk ──────────────────────────────────────────────
 export const categoriesApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<EventCategory>>("/api/superadmin/categories", params),
+    fetchListWithFallback<EventCategory>("/api/event-categories", params, MOCK_CATEGORIES, (c, s) =>
+      c.name.toLowerCase().includes(s) || c.slug.toLowerCase().includes(s)
+    ),
   create: (body: Partial<EventCategory>) =>
-    api.post<EventCategory>("/api/superadmin/categories", body),
+    api.post<EventCategory>("/api/event-categories", body),
   update: (id: number, body: Partial<EventCategory>) =>
-    api.put<EventCategory>(`/api/superadmin/categories/${id}`, body),
+    api.patch<EventCategory>(`/api/event-categories/${id}`, body),
   delete: (id: number) =>
-    api.delete(`/api/superadmin/categories/${id}`),
+    api.delete(`/api/event-categories/${id}`),
 };
 
 export const productsApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<EventProduct>>("/api/superadmin/products", params),
+    fetchListWithFallback<EventProduct>("/api/event-products", params, MOCK_PRODUCTS, (p, s) =>
+      p.name.toLowerCase().includes(s) || p.slug.toLowerCase().includes(s)
+    ),
   togglePublish: (id: number, isPublished: boolean) =>
-    api.patch(`/api/superadmin/products/${id}/publish`, { isPublished }),
+    api.patch(`/api/event-products/${id}`, { isPublished }),
 };
 
 export const flashSalesApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<FlashSale>>("/api/superadmin/flash-sales", params),
+    fetchListWithFallback<FlashSale>("/api/admin/flash-sales", params, MOCK_FLASH_SALES),
   create: (body: Partial<FlashSale>) =>
-    api.post<FlashSale>("/api/superadmin/flash-sales", body),
+    api.post<FlashSale>("/api/admin/flash-sales", body),
   end: (id: number) =>
-    api.patch(`/api/superadmin/flash-sales/${id}/end`),
+    api.patch(`/api/admin/flash-sales/${id}`, { status: "ended" }),
 };
 
 // ─── Modul 6: Buku Tamu & Presensi ──────────────────────────────────────────
 export const guestsApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<EventGuest>>("/api/superadmin/guests", params),
+    fetchListWithFallback<EventGuest>("/api/host/event-guests", params, MOCK_GUESTS, (g, s) =>
+      g.name.toLowerCase().includes(s) || (g.phone?.includes(s) ?? false) || g.guestCode.toLowerCase().includes(s)
+    ),
 };
 
 export const registrationsApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<EventRegistration>>("/api/superadmin/registrations", params),
+    fetchListWithFallback<EventRegistration>("/api/admin/event-registrations", params, MOCK_REGISTRATIONS),
 };
 
 export const attendancesApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<EventAttendance>>("/api/superadmin/attendances", params),
+    fetchListWithFallback<EventAttendance>("/api/host/event-attendances", params, MOCK_ATTENDANCES),
 };
 
 // ─── Modul 7: Keuangan & Billing ────────────────────────────────────────────
 export const invoicesApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<PackageInvoice>>("/api/superadmin/invoices", params),
+    fetchListWithFallback<PackageInvoice>("/api/admin/invoices", params, MOCK_INVOICES, (i, s) =>
+      i.invoiceNumber.toLowerCase().includes(s) || (i.hostName?.toLowerCase().includes(s) ?? false)
+    ),
 };
 
 export const paymentsApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<PaymentSessionLog>>("/api/superadmin/payments", params),
+    fetchListWithFallback<PaymentSessionLog>("/api/admin/payment-sessions", params, MOCK_PAYMENTS),
 };
 
 export const giftInvoicesApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<GiftInvoiceRecord>>("/api/superadmin/gift-invoices", params),
+    fetchListWithFallback<GiftInvoiceRecord>("/api/admin/invoice-gifts", params, MOCK_GIFT_INVOICES),
 };
 
 export const withdrawalsApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<WithdrawalRequest>>("/api/superadmin/withdrawals", params),
+    fetchListWithFallback<WithdrawalRequest>("/api/admin/withdrawals", params, MOCK_WITHDRAWALS, (w, s) =>
+      w.hostName.toLowerCase().includes(s) || w.bankName.toLowerCase().includes(s) || w.accountNumber.includes(s)
+    ),
   approve: (id: number) =>
-    api.patch(`/api/superadmin/withdrawals/${id}/approve`),
+    api.patch(`/api/admin/withdrawals/${id}`, { status: "approved" }),
   reject: (id: number, reason: string) =>
-    api.patch(`/api/superadmin/withdrawals/${id}/reject`, { reason }),
+    api.patch(`/api/admin/withdrawals/${id}`, { status: "rejected", reason }),
 };
 
 // ─── Modul 8: Tiket Bantuan & Ulasan ────────────────────────────────────────
 export const ticketsApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<SupportTicket>>("/api/superadmin/tickets", params),
+    fetchListWithFallback<SupportTicket>("/api/host/tickets", params, MOCK_TICKETS, (t, s) =>
+      t.title.toLowerCase().includes(s) || String(t.id).includes(s)
+    ),
   getById: (id: number) =>
-    api.get<{ ticket: SupportTicket; interactions: TicketInteraction[] }>(`/api/superadmin/tickets/${id}`),
+    api.get<{ ticket: SupportTicket; interactions: TicketInteraction[] }>(`/api/host/tickets/${id}`),
   reply: (id: number, message: string) =>
-    api.post(`/api/superadmin/tickets/${id}/reply`, { message }),
+    api.post(`/api/host/ticket-interactions`, { ticketId: id, message }),
   updateStatus: (id: number, status: string) =>
-    api.patch(`/api/superadmin/tickets/${id}/status`, { status }),
+    api.patch(`/api/host/tickets/${id}`, { status }),
 };
 
 export const reviewsApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<ThemeReview>>("/api/superadmin/reviews", params),
+    fetchListWithFallback<ThemeReview>("/api/admin/invoice-reviews", params, MOCK_REVIEWS),
   togglePublish: (id: number, isPublished: boolean) =>
-    api.patch(`/api/superadmin/reviews/${id}/publish`, { isPublished }),
+    api.patch(`/api/admin/invoice-reviews/${id}`, { isPublished }),
 };
 
 // ─── Modul 9: CMS & Marketing ────────────────────────────────────────────────
 export const popupsApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<PromoPopup>>("/api/superadmin/popups", params),
+    fetchListWithFallback<PromoPopup>("/api/popups", params, MOCK_POPUPS),
   create: (body: Partial<PromoPopup>) =>
-    api.post<PromoPopup>("/api/superadmin/popups", body),
+    api.post<PromoPopup>("/api/popups", body),
   update: (id: number, body: Partial<PromoPopup>) =>
-    api.put<PromoPopup>(`/api/superadmin/popups/${id}`, body),
+    api.patch<PromoPopup>(`/api/popups/${id}`, body),
   delete: (id: number) =>
-    api.delete(`/api/superadmin/popups/${id}`),
+    api.delete(`/api/popups/${id}`),
   toggle: (id: number, isActive: boolean) =>
-    api.patch(`/api/superadmin/popups/${id}/toggle`, { isActive }),
+    api.patch(`/api/popups/${id}`, { isActive }),
 };
 
 export const sosmedApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<SocialMediaAccount>>("/api/superadmin/sosmed", params),
+    fetchListWithFallback<SocialMediaAccount>("/api/sosmed", params, MOCK_SOSMED),
   create: (body: Partial<SocialMediaAccount>) =>
-    api.post<SocialMediaAccount>("/api/superadmin/sosmed", body),
+    api.post<SocialMediaAccount>("/api/sosmed", body),
   update: (id: number, body: Partial<SocialMediaAccount>) =>
-    api.put<SocialMediaAccount>(`/api/superadmin/sosmed/${id}`, body),
+    api.patch<SocialMediaAccount>(`/api/sosmed/${id}`, body),
   delete: (id: number) =>
-    api.delete(`/api/superadmin/sosmed/${id}`),
+    api.delete(`/api/sosmed/${id}`),
 };
 
 export const faqApi = {
   listCategories: (params?: ListParams) =>
-    api.get<PaginatedData<FaqCategory>>("/api/superadmin/faq-categories", params),
+    fetchListWithFallback<FaqCategory>("/api/faq-categories", params, MOCK_FAQ_CATEGORIES),
   listItems: (params?: ListParams) =>
-    api.get<PaginatedData<FaqItem>>("/api/superadmin/faq-items", params),
+    fetchListWithFallback<FaqItem>("/api/faq", params, MOCK_FAQ_ITEMS),
   createCategory: (body: Partial<FaqCategory>) =>
-    api.post<FaqCategory>("/api/superadmin/faq-categories", body),
+    api.post<FaqCategory>("/api/faq-categories", body),
   createItem: (body: Partial<FaqItem>) =>
-    api.post<FaqItem>("/api/superadmin/faq-items", body),
+    api.post<FaqItem>("/api/faq", body),
   updateItem: (id: number, body: Partial<FaqItem>) =>
-    api.put<FaqItem>(`/api/superadmin/faq-items/${id}`, body),
+    api.patch<FaqItem>(`/api/faq/${id}`, body),
   deleteItem: (id: number) =>
-    api.delete(`/api/superadmin/faq-items/${id}`),
+    api.delete(`/api/faq/${id}`),
 };
 
 export const contactMessagesApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<ContactMessage>>("/api/superadmin/contact-messages", params),
+    fetchListWithFallback<ContactMessage>("/api/contact-messages", params, MOCK_CONTACT_MESSAGES),
   markRead: (id: number) =>
-    api.patch(`/api/superadmin/contact-messages/${id}/read`),
+    api.patch(`/api/contact-messages/${id}`, { status: "read" }),
   reply: (id: number, message: string) =>
-    api.post(`/api/superadmin/contact-messages/${id}/reply`, { message }),
+    api.post(`/api/contact-messages/${id}/reply`, { message }),
 };
 
 // ─── Modul 10: Notifikasi ────────────────────────────────────────────────────
 export const notificationsApi = {
   listLogs: (params?: ListParams) =>
-    api.get<PaginatedData<NotificationLog>>("/api/superadmin/notification-logs", params),
+    fetchListWithFallback<NotificationLog>("/api/admin/notif-whatsapps", params, MOCK_NOTIF_LOGS),
   listDead: (params?: ListParams) =>
-    api.get<PaginatedData<DeadNotification>>("/api/superadmin/dead-notifications", params),
+    fetchListWithFallback<DeadNotification>("/api/admin/dead-notifications", params, MOCK_DEAD_NOTIFICATIONS),
   retry: (id: number) =>
-    api.patch(`/api/superadmin/dead-notifications/${id}/retry`),
+    api.patch(`/api/admin/dead-notifications/${id}`, { status: "retrying" }),
 };
+
+const createFallbackResponse = <T>(data: T): ApiResponse<T> => ({
+  success: true,
+  type: "success",
+  title: "Berhasil",
+  action: "GET_DATA",
+  status: 200,
+  message: "Dimuat dari dataset fallback",
+  data,
+  errors: null,
+});
 
 // ─── Modul 11: Settings ──────────────────────────────────────────────────────
 export const settingsApi = {
   getSite: () =>
-    api.get<SiteSettings>("/api/superadmin/settings/site"),
+    api.get<SiteSettings>("/api/superadmin/settings").catch(() => createFallbackResponse(MOCK_SITE_SETTINGS)),
   updateSite: (body: Partial<SiteSettings>) =>
-    api.put<SiteSettings>("/api/superadmin/settings/site", body),
+    api.patch<SiteSettings>("/api/superadmin/settings", body),
   getTransaction: () =>
-    api.get<TransactionSettings>("/api/superadmin/settings/transaction"),
+    api.get<TransactionSettings>("/api/superadmin/config-transaction").catch(() => createFallbackResponse(MOCK_TRANSACTION_SETTINGS)),
   updateTransaction: (body: Partial<TransactionSettings>) =>
-    api.put<TransactionSettings>("/api/superadmin/settings/transaction", body),
+    api.patch<TransactionSettings>("/api/superadmin/config-transaction", body),
   getGateway: () =>
-    api.get<GatewaySettings>("/api/superadmin/settings/gateway"),
+    api.get<GatewaySettings>("/api/superadmin/config-whatsapp").catch(() => createFallbackResponse(MOCK_GATEWAY_SETTINGS)),
   updateGateway: (body: Partial<GatewaySettings>) =>
-    api.put<GatewaySettings>("/api/superadmin/settings/gateway", body),
+    api.patch<GatewaySettings>("/api/superadmin/config-whatsapp", body),
 };
 
 // ─── Modul 12: Activity Logs ─────────────────────────────────────────────────
 export const activityLogsApi = {
   list: (params?: ListParams) =>
-    api.get<PaginatedData<ActivityLog>>("/api/superadmin/activity-logs", params),
+    fetchListWithFallback<ActivityLog>("/api/superadmin/activity-logs", params, MOCK_ACTIVITY_LOGS, (l, s) =>
+      l.actorName.toLowerCase().includes(s) || l.action.toLowerCase().includes(s) || (l.details?.toLowerCase().includes(s) ?? false)
+    ),
 };

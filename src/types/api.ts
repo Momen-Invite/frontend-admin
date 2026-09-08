@@ -26,6 +26,16 @@ export interface PaginationParams {
   sortOrder?: "asc" | "desc";
 }
 
+export interface BackendPaginatedRows<T> {
+  rows: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage?: boolean;
+  hasPrevPage?: boolean;
+}
+
 export interface PaginatedData<T> {
   items: T[];
   meta: {

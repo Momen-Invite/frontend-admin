@@ -6,7 +6,8 @@ type StatusVariant =
   | "ditolak"
   | "disetujui"
   | "proses"
-  | "gagal";
+  | "gagal"
+  | "nonaktif";
 
 interface StatusBadgeProps {
   variant: StatusVariant;
@@ -41,6 +42,10 @@ const VARIANT_STYLES: Record<
   gagal: {
     className: "bg-error-container text-on-error-container",
     defaultLabel: "Gagal",
+  },
+  nonaktif: {
+    className: "bg-surface-variant text-on-surface-variant",
+    defaultLabel: "Nonaktif",
   },
 };
 

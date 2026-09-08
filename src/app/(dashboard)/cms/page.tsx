@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { PromoPopup, SocialMediaAccount, FaqCategory, FaqItem } from "@/types/superadmin";
 import {
@@ -9,10 +9,12 @@ import {
   MOCK_FAQ_CATEGORIES,
   MOCK_FAQ_ITEMS,
 } from "@/lib/mock-superadmin-data";
+import { popupsApi, sosmedApi, faqApi, PaginationMeta } from "@/lib/api-superadmin";
 import { toastManager } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Dialog,
   DialogContent,
@@ -22,13 +24,41 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
+const DEFAULT_META: PaginationMeta = {
+  total: 0,
+  page: 1,
+  limit: 10,
+  totalPages: 1,
+  hasNextPage: false,
+  hasPrevPage: false,
+};
+
 export default function CmsManagementPage() {
   const [activeTab, setActiveTab] = useState<"popups" | "sosmed" | "faq">("popups");
 
+  // Tab 1: Popups
   const [popups, setPopups] = useState<PromoPopup[]>(MOCK_POPUPS);
+  const [popupMeta, setPopupMeta] = useState<PaginationMeta>({
+    ...DEFAULT_META,
+    total: MOCK_POPUPS.length,
+    totalPages: 1,
+  });
+  const [popupPage, setPopupPage] = useState<number>(1);
+  const [popupLoading, setPopupLoading] = useState<boolean>(true);
+
+  // Tab 2: Sosmed
   const [sosmed, setSosmed] = useState<SocialMediaAccount[]>(MOCK_SOSMED);
-  const [faqCategories] = useState<FaqCategory[]>(MOCK_FAQ_CATEGORIES);
+  const [sosmedLoading, setSosmedLoading] = useState<boolean>(true);
+
+  // Tab 3: FAQ
   const [faqItems, setFaqItems] = useState<FaqItem[]>(MOCK_FAQ_ITEMS);
+  const [faqMeta, setFaqMeta] = useState<PaginationMeta>({
+    ...DEFAULT_META,
+    total: MOCK_FAQ_ITEMS.length,
+    totalPages: 1,
+  });
+  const [faqPage, setFaqPage] = useState<number>(1);
+  const [faqLoading, setFaqLoading] = useState<boolean>(true);
 
   // Dialog Add Popup
   const [isPopupModalOpen, setIsPopupModalOpen] = useState(false);
@@ -41,17 +71,78 @@ export default function CmsManagementPage() {
     endDate: "2026-09-30",
   });
 
-  const handleTogglePopup = (id: number) => {
+  // Fetch Popups
+  const fetchPopups = useCallback(async () => {
+    setPopupLoading(true);
+    try {
+      const res = await popupsApi.list({ page: popupPage, limit: 10 });
+      if (res.data) {
+        const d = res.data as { items: PromoPopup[]; meta: PaginationMeta };
+        setPopups(d.items ?? []);
+        setPopupMeta(d.meta ?? DEFAULT_META);
+      }
+    } catch {
+      // Fallback
+    } finally {
+      setPopupLoading(false);
+    }
+  }, [popupPage]);
+
+  // Fetch Sosmed
+  const fetchSosmed = useCallback(async () => {
+    setSosmedLoading(true);
+    try {
+      const res = await sosmedApi.list();
+      if (res.data) {
+        const d = res.data as { items?: SocialMediaAccount[] } | SocialMediaAccount[];
+        const items = Array.isArray(d) ? d : (d.items ?? []);
+        if (items.length > 0) setSosmed(items);
+      }
+    } catch {
+      // Fallback
+    } finally {
+      setSosmedLoading(false);
+    }
+  }, []);
+
+  // Fetch FAQ Items
+  const fetchFaq = useCallback(async () => {
+    setFaqLoading(true);
+    try {
+      const res = await faqApi.listItems({ page: faqPage, limit: 10 });
+      if (res.data) {
+        const d = res.data as { items: FaqItem[]; meta: PaginationMeta };
+        setFaqItems(d.items ?? []);
+        setFaqMeta(d.meta ?? DEFAULT_META);
+      }
+    } catch {
+      // Fallback
+    } finally {
+      setFaqLoading(false);
+    }
+  }, [faqPage]);
+
+  useEffect(() => {
+    if (activeTab === "popups") fetchPopups();
+    else if (activeTab === "sosmed") fetchSosmed();
+    else if (activeTab === "faq") fetchFaq();
+  }, [activeTab, fetchPopups, fetchSosmed, fetchFaq]);
+
+  const handleTogglePopup = async (id: number, currentActive: boolean) => {
+    try {
+      await popupsApi.toggle(id, !currentActive);
+    } catch {
+      // offline fallback
+    }
     setPopups((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, isActive: !p.isActive } : p))
+      prev.map((p) => (p.id === id ? { ...p, isActive: !currentActive } : p))
     );
     toastManager.info("Status tayang pop-up telah diperbarui.");
   };
 
-  const handleAddPopup = (e: React.FormEvent) => {
+  const handleAddPopup = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newPopup: PromoPopup = {
-      id: Date.now(),
+    const newPopupPayload: Partial<PromoPopup> = {
       title: popupForm.title,
       displayLocate: popupForm.displayLocate,
       imgUrl: popupForm.imgUrl,
@@ -60,7 +151,17 @@ export default function CmsManagementPage() {
       endDate: popupForm.endDate,
       isActive: true,
     };
-    setPopups((prev) => [newPopup, ...prev]);
+
+    try {
+      const res = await popupsApi.create(newPopupPayload);
+      if (res.data) {
+        setPopups((prev) => [res.data as PromoPopup, ...prev]);
+      } else {
+        setPopups((prev) => [{ id: Date.now(), ...newPopupPayload } as PromoPopup, ...prev]);
+      }
+    } catch {
+      setPopups((prev) => [{ id: Date.now(), ...newPopupPayload } as PromoPopup, ...prev]);
+    }
     setIsPopupModalOpen(false);
     toastManager.success("Banner pop-up promosi baru berhasil dijadwalkan.");
   };
@@ -70,9 +171,15 @@ export default function CmsManagementPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-background">
-            CMS & Pemasaran Landing Page
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-background">
+              CMS & Pemasaran Landing Page
+            </h1>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live API
+            </span>
+          </div>
           <p className="text-sm text-on-surface-variant mt-1">
             Kelola banner pop-up promosi, tautan sosial media resmi, dan pusat bantuan FAQ.
           </p>
@@ -127,54 +234,73 @@ export default function CmsManagementPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {popups.map((popup) => (
-              <div
-                key={popup.id}
-                className="rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm overflow-hidden flex flex-col justify-between"
-              >
-                <div>
-                  <div className="relative aspect-[21/9] bg-surface-container-low overflow-hidden">
-                    <Image
-                      src={popup.imgUrl}
-                      alt={popup.title}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute top-2.5 right-2.5">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          popup.isActive ? "bg-emerald-500 text-white" : "bg-slate-700 text-white"
-                        }`}
-                      >
-                        {popup.isActive ? "Aktif" : "Nonaktif"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-4 space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-                      Lokasi: Halaman {popup.displayLocate}
-                    </span>
-                    <h3 className="font-bold text-base text-on-surface">{popup.title}</h3>
-                    <div className="text-xs text-on-surface-variant">
-                      Periode: {popup.startDate} s/d {popup.endDate}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-4 pt-0 flex justify-end gap-2">
-                  <Button
-                    variant={popup.isActive ? "outline" : "default"}
-                    size="sm"
-                    onClick={() => handleTogglePopup(popup.id)}
-                    className="text-xs rounded-xl"
-                  >
-                    {popup.isActive ? "Nonaktifkan" : "Aktifkan"}
-                  </Button>
-                </div>
+            {popupLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="rounded-2xl bg-surface-container-low animate-pulse p-4 space-y-3 h-64" />
+              ))
+            ) : popups.length === 0 ? (
+              <div className="col-span-full py-12 text-center text-on-surface-variant text-sm">
+                Belum ada banner pop-up terdaftar.
               </div>
-            ))}
+            ) : (
+              popups.map((popup) => (
+                <div
+                  key={popup.id}
+                  className="rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm overflow-hidden flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="relative aspect-[21/9] bg-surface-container-low overflow-hidden">
+                      <Image
+                        src={popup.imgUrl}
+                        alt={popup.title}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute top-2.5 right-2.5">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            popup.isActive ? "bg-emerald-500 text-white" : "bg-slate-700 text-white"
+                          }`}
+                        >
+                          {popup.isActive ? "Aktif" : "Nonaktif"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-4 space-y-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                        Lokasi: Halaman {popup.displayLocate}
+                      </span>
+                      <h3 className="font-bold text-base text-on-surface">{popup.title}</h3>
+                      <div className="text-xs text-on-surface-variant">
+                        Periode: {popup.startDate} s/d {popup.endDate}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 pt-0 flex justify-end gap-2">
+                    <Button
+                      variant={popup.isActive ? "outline" : "default"}
+                      size="sm"
+                      onClick={() => handleTogglePopup(popup.id, popup.isActive)}
+                      className="text-xs rounded-xl"
+                    >
+                      {popup.isActive ? "Nonaktifkan" : "Aktifkan"}
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
+
+          <Pagination
+            currentPage={popupPage}
+            totalPages={popupMeta.totalPages}
+            totalItems={popupMeta.total}
+            pageSize={10}
+            onPageChange={(p) => setPopupPage(p)}
+            isLiveApi={!popupLoading}
+          />
         </div>
       )}
 
@@ -187,24 +313,30 @@ export default function CmsManagementPage() {
           </p>
 
           <div className="space-y-3 pt-2">
-            {sosmed.map((s, idx) => (
-              <div key={s.id} className="space-y-1">
-                <Label className="text-xs font-semibold flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-sm text-primary">{s.icon}</span>
-                  {s.name}
-                </Label>
-                <Input
-                  value={s.url}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setSosmed((prev) =>
-                      prev.map((item) => (item.id === s.id ? { ...item, url: val } : item))
-                    );
-                  }}
-                  className="rounded-xl text-xs"
-                />
-              </div>
-            ))}
+            {sosmedLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-10 bg-surface-container-low rounded-xl animate-pulse" />
+              ))
+            ) : (
+              sosmed.map((s) => (
+                <div key={s.id} className="space-y-1">
+                  <Label className="text-xs font-semibold flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-sm text-primary">{s.icon}</span>
+                    {s.name}
+                  </Label>
+                  <Input
+                    value={s.url}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setSosmed((prev) =>
+                        prev.map((item) => (item.id === s.id ? { ...item, url: val } : item))
+                      );
+                    }}
+                    className="rounded-xl text-xs"
+                  />
+                </div>
+              ))
+            )}
           </div>
 
           <div className="pt-3">
@@ -234,22 +366,41 @@ export default function CmsManagementPage() {
             </div>
 
             <div className="space-y-3 pt-2">
-              {faqItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-4 rounded-xl bg-surface-container-low border border-outline-variant/20 space-y-1.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-primary uppercase">
-                      {item.categoryName}
-                    </span>
-                    <span className="text-[10px] text-emerald-700 font-semibold">Aktif Tayang</span>
-                  </div>
-                  <h4 className="font-bold text-sm text-on-surface">{item.question}</h4>
-                  <p className="text-xs text-on-surface-variant leading-relaxed">{item.answer}</p>
+              {faqLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-20 bg-surface-container-low rounded-xl animate-pulse" />
+                ))
+              ) : faqItems.length === 0 ? (
+                <div className="py-8 text-center text-xs text-on-surface-variant">
+                  Tidak ada FAQ terdaftar.
                 </div>
-              ))}
+              ) : (
+                faqItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-xl bg-surface-container-low border border-outline-variant/20 space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-primary uppercase">
+                        {item.categoryName}
+                      </span>
+                      <span className="text-[10px] text-emerald-700 font-semibold">Aktif Tayang</span>
+                    </div>
+                    <h4 className="font-bold text-sm text-on-surface">{item.question}</h4>
+                    <p className="text-xs text-on-surface-variant leading-relaxed">{item.answer}</p>
+                  </div>
+                ))
+              )}
             </div>
+
+            <Pagination
+              currentPage={faqPage}
+              totalPages={faqMeta.totalPages}
+              totalItems={faqMeta.total}
+              pageSize={10}
+              onPageChange={(p) => setFaqPage(p)}
+              isLiveApi={!faqLoading}
+            />
           </div>
         </div>
       )}

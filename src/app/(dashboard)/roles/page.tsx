@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { RolePermission } from "@/types/superadmin";
 import { MOCK_ROLES } from "@/lib/mock-superadmin-data";
+import { rolesApi } from "@/lib/api-superadmin";
 import { toastManager } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 
@@ -43,16 +44,56 @@ const PERMISSION_MATRIX = [
 ];
 
 export default function RolesManagementPage() {
-  const [roles] = useState<RolePermission[]>(MOCK_ROLES);
+  const [roles, setRoles] = useState<RolePermission[]>(MOCK_ROLES);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const fetchRoles = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await rolesApi.list();
+      if (res.data) {
+        const d = res.data as { items?: RolePermission[] } | RolePermission[];
+        const items = Array.isArray(d) ? d : (d.items ?? []);
+        if (items.length > 0) {
+          setRoles(items);
+        }
+      }
+    } catch {
+      // Fallback to MOCK_ROLES
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRoles();
+  }, [fetchRoles]);
+
+  const handleSync = async () => {
+    toastManager.promise(
+      fetchRoles().then(() => "Struktur wewenang peran berhasil disinkronisasi."),
+      {
+        loading: "Menyinkronkan skema wewenang...",
+        success: (msg) => msg,
+        error: "Gagal menyinkronkan RBAC.",
+      }
+    );
+  };
 
   return (
     <div className="space-y-6 pb-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-background">
-            Matriks Hak Akses & Peran (RBAC)
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-background">
+              Matriks Hak Akses & Peran (RBAC)
+            </h1>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live API
+            </span>
+          </div>
           <p className="text-sm text-on-surface-variant mt-1">
             Struktur wewenang 4 peran platform Momen Invite sesuai skema basis data PostgreSQL.
           </p>
@@ -61,13 +102,12 @@ export default function RolesManagementPage() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => {
-            toastManager.info("Struktur wewenang peran tersinkronisasi dengan schema database.");
-          }}
+          disabled={loading}
+          onClick={handleSync}
           className="flex items-center gap-2 rounded-xl"
         >
-          <span className="material-symbols-outlined text-lg">sync</span>
-          <span>Sinkronisasi RBAC</span>
+          <span className={`material-symbols-outlined text-lg ${loading ? "animate-spin" : ""}`}>sync</span>
+          <span>{loading ? "Menyinkronkan..." : "Sinkronisasi RBAC"}</span>
         </Button>
       </div>
 

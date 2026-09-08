@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { FlashSale } from "@/types/superadmin";
-import { MOCK_FLASH_SALES, MOCK_PRODUCTS } from "@/lib/mock-superadmin-data";
+import { flashSalesApi, PaginationMeta } from "@/lib/api-superadmin";
+import { ApiError } from "@/lib/api";
 import { toastManager } from "@/components/ui/toast";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Dialog,
   DialogContent,
@@ -17,283 +19,180 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-export default function FlashSalesManagementPage() {
-  const [sales, setSales] = useState<FlashSale[]>(MOCK_FLASH_SALES);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const DEFAULT_META: PaginationMeta = { total: 0, page: 1, limit: 15, totalPages: 1, hasNextPage: false, hasPrevPage: false };
 
-  const [formData, setFormData] = useState({
-    productId: 1,
-    promoPrice: 89000,
-    label: "Promo Spesial",
-    startsAt: "2026-09-08T00:00",
-    endsAt: "2026-09-15T23:59",
-  });
+export default function FlashSalesPage() {
+  const [flashSales, setFlashSales] = useState<FlashSale[]>([]);
+  const [meta, setMeta] = useState<PaginationMeta>(DEFAULT_META);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newPromo, setNewPromo] = useState({ eventProductId: "", promoPrice: "", label: "", startsAt: "", endsAt: "" });
 
-  const handleCreateSale = (e: React.FormEvent) => {
-    e.preventDefault();
-    const prod = MOCK_PRODUCTS.find((p) => p.id === Number(formData.productId));
-    if (!prod) return;
+  const fetchFlashSales = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await flashSalesApi.list({ page, limit: 15, status: statusFilter !== "all" ? statusFilter : undefined });
+      const d = res.data as { items: FlashSale[]; meta: PaginationMeta };
+      setFlashSales(d.items ?? []);
+      setMeta(d.meta ?? DEFAULT_META);
+    } catch (err) {
+      toastManager.error(err instanceof ApiError ? err.message : "Gagal memuat data flash sale.");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, statusFilter]);
 
-    const newSale: FlashSale = {
-      id: Date.now(),
-      eventProductId: prod.id,
-      productName: prod.name,
-      normalPrice: prod.price,
-      promoPrice: Number(formData.promoPrice),
-      label: formData.label,
-      startsAt: new Date(formData.startsAt).toISOString(),
-      endsAt: new Date(formData.endsAt).toISOString(),
-      status: "active",
-    };
+  useEffect(() => { fetchFlashSales(); }, [fetchFlashSales]);
+  useEffect(() => { setPage(1); }, [statusFilter]);
 
-    setSales((prev) => [newSale, ...prev]);
-    setIsModalOpen(false);
-    toastManager.success(`Promo Flash Sale untuk "${prod.name}" berhasil dijadwalkan.`);
+  const handleEndPromo = async (id: number, name: string) => {
+    if (!confirm(`Akhiri promo "${name}"?`)) return;
+    try {
+      await flashSalesApi.end(id);
+      toastManager.success(`Promo "${name}" telah diakhiri.`);
+      fetchFlashSales();
+    } catch (err) {
+      toastManager.error(err instanceof ApiError ? err.message : "Gagal mengakhiri promo.");
+    }
   };
 
-  const handleEndPromo = (saleId: number) => {
-    setSales((prev) =>
-      prev.map((s) => (s.id === saleId ? { ...s, status: "ended" } : s))
-    );
-    toastManager.info("Flash sale telah diakhiri secara manual.");
+  const handleCreatePromo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPromo.eventProductId || !newPromo.promoPrice) { toastManager.error("ID Produk dan harga promo wajib diisi."); return; }
+    setCreating(true);
+    try {
+      await flashSalesApi.create({
+        eventProductId: Number(newPromo.eventProductId),
+        promoPrice: Number(newPromo.promoPrice),
+        label: newPromo.label,
+        startsAt: newPromo.startsAt,
+        endsAt: newPromo.endsAt,
+      });
+      toastManager.success("Flash sale baru berhasil dibuat.");
+      setIsCreateOpen(false);
+      setNewPromo({ eventProductId: "", promoPrice: "", label: "", startsAt: "", endsAt: "" });
+      fetchFlashSales();
+    } catch (err) {
+      toastManager.error(err instanceof ApiError ? err.message : "Gagal membuat flash sale.");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const statusVariantMap: Record<string, "sukses" | "pending" | "gagal" | "nonaktif"> = {
+    active: "sukses", scheduled: "pending", ended: "nonaktif",
   };
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-background">
-            Flash Sale & Promosi Tema
-          </h1>
-          <p className="text-sm text-on-surface-variant mt-1">
-            Atur diskon berbatas waktu pada katalog tema undangan untuk mendongkrak konversi pembelian.
-          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-background">Flash Sale & Promo Tema</h1>
+          <p className="text-sm text-on-surface-variant mt-1">Kelola diskon tempo terbatas, jadwal promo, dan label penawaran khusus.</p>
         </div>
-
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 rounded-xl bg-primary text-on-primary"
-        >
-          <span className="material-symbols-outlined text-lg">timer</span>
-          <span>Buat Flash Sale Baru</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={fetchFlashSales} disabled={loading} className="rounded-xl flex items-center gap-2">
+            <span className="material-symbols-outlined text-lg">refresh</span>
+          </Button>
+          <Button size="sm" onClick={() => setIsCreateOpen(true)} className="flex items-center gap-2 rounded-xl bg-primary text-on-primary">
+            <span className="material-symbols-outlined text-lg">local_offer</span>
+            <span>Buat Promo</span>
+          </Button>
+        </div>
       </div>
 
-      {/* Sales Table */}
+      <div className="flex gap-2">
+        {[{ id: "all", label: "Semua" }, { id: "active", label: "Aktif" }, { id: "scheduled", label: "Terjadwal" }, { id: "ended", label: "Berakhir" }].map((tab) => (
+          <button key={tab.id} onClick={() => { setStatusFilter(tab.id); setPage(1); }} className={`px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${statusFilter === tab.id ? "bg-primary text-on-primary" : "bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low"}`}>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       <div className="rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm overflow-hidden">
-        <div className="hidden md:block overflow-x-auto">
+        <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-surface-container-low/50 text-xs font-semibold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant/20">
               <tr>
-                <th className="py-3.5 px-4">Label Kampanye</th>
-                <th className="py-3.5 px-4">Tema Terkait</th>
+                <th className="py-3.5 px-4">Produk Tema</th>
                 <th className="py-3.5 px-4">Harga Normal</th>
-                <th className="py-3.5 px-4">Harga Flash Sale</th>
-                <th className="py-3.5 px-4">Periode Diskon</th>
-                <th className="py-3.5 px-4">Status Promo</th>
+                <th className="py-3.5 px-4">Harga Promo</th>
+                <th className="py-3.5 px-4">Label</th>
+                <th className="py-3.5 px-4">Mulai</th>
+                <th className="py-3.5 px-4">Berakhir</th>
+                <th className="py-3.5 px-4">Status</th>
                 <th className="py-3.5 px-4 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant/20 text-on-surface text-xs">
-              {sales.map((sale) => {
-                const discountPct = Math.round(
-                  ((sale.normalPrice - sale.promoPrice) / sale.normalPrice) * 100
-                );
-
-                return (
-                  <tr key={sale.id} className="hover:bg-surface-container-low/30 transition-colors">
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-sm text-on-surface">{sale.label}</div>
-                      <span className="inline-block mt-0.5 px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 text-[10px] font-bold">
-                        Hemat {discountPct}%
-                      </span>
-                    </td>
-
-                    <td className="py-3.5 px-4 font-semibold text-primary">
-                      {sale.productName}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-on-surface-variant line-through">
-                      Rp {sale.normalPrice.toLocaleString("id-ID")}
-                    </td>
-
-                    <td className="py-3.5 px-4 font-bold text-rose-600 text-sm">
-                      Rp {sale.promoPrice.toLocaleString("id-ID")}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-on-surface-variant">
-                      <div>
-                        {new Date(sale.startsAt).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "short",
-                        })}{" "}
-                        s/d{" "}
-                        {new Date(sale.endsAt).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </div>
-                    </td>
-
-                    <td className="py-3.5 px-4">
-                      {sale.status === "active" ? (
-                        <StatusBadge variant="sukses" label="Sedang Berlangsung" />
-                      ) : sale.status === "scheduled" ? (
-                        <StatusBadge variant="pending" label="Terjadwal" />
-                      ) : (
-                        <StatusBadge variant="gagal" label="Berakhir" />
-                      )}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-right">
-                      {sale.status === "active" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEndPromo(sale.id)}
-                          className="h-8 text-xs text-error hover:bg-error-container/20 rounded-lg"
-                        >
-                          Hentikan Promo
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+            <tbody className="divide-y divide-outline-variant/20 text-on-surface">
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>{Array.from({ length: 8 }).map((_, j) => (
+                    <td key={j} className="py-3 px-4"><div className="h-4 bg-surface-container-low rounded animate-pulse" /></td>
+                  ))}</tr>
+                ))
+              ) : flashSales.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-on-surface-variant">
+                    <span className="material-symbols-outlined text-4xl block mb-2 opacity-50">local_offer</span>
+                    Tidak ada data flash sale.
+                  </td>
+                </tr>
+              ) : flashSales.map((sale) => (
+                <tr key={sale.id} className="hover:bg-surface-container-low/30 transition-colors">
+                  <td className="py-3 px-4 font-semibold">{sale.productName}</td>
+                  <td className="py-3 px-4 text-on-surface-variant line-through">Rp {sale.normalPrice.toLocaleString("id-ID")}</td>
+                  <td className="py-3 px-4 font-bold text-primary">Rp {sale.promoPrice.toLocaleString("id-ID")}</td>
+                  <td className="py-3 px-4">
+                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-container text-on-primary-container">{sale.label}</span>
+                  </td>
+                  <td className="py-3 px-4 text-xs">{new Date(sale.startsAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</td>
+                  <td className="py-3 px-4 text-xs">{new Date(sale.endsAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</td>
+                  <td className="py-3 px-4">
+                    <StatusBadge variant={statusVariantMap[sale.status] ?? "nonaktif"} label={sale.status === "active" ? "Aktif" : sale.status === "scheduled" ? "Terjadwal" : "Berakhir"} />
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    {sale.status !== "ended" && (
+                      <Button variant="ghost" size="sm" onClick={() => handleEndPromo(sale.id, sale.productName)} className="h-8 px-3 rounded-lg text-error hover:bg-error-container/20 text-xs">
+                        Akhiri
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
-
-        {/* Mobile Cards */}
-        <div className="md:hidden divide-y divide-outline-variant/20 p-3 space-y-3">
-          {sales.map((sale) => (
-            <div key={sale.id} className="p-4 rounded-xl bg-surface-container-low space-y-2.5">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-bold text-on-surface text-sm">{sale.label}</div>
-                  <div className="text-xs text-primary font-medium">{sale.productName}</div>
-                </div>
-                {sale.status === "active" ? (
-                  <StatusBadge variant="sukses" label="Aktif" />
-                ) : (
-                  <StatusBadge variant="gagal" label="Berakhir" />
-                )}
-              </div>
-
-              <div className="flex items-center justify-between text-xs pt-1 border-t border-outline-variant/20">
-                <span className="line-through text-on-surface-variant">
-                  Rp {sale.normalPrice.toLocaleString("id-ID")}
-                </span>
-                <span className="font-bold text-rose-600 text-sm">
-                  Rp {sale.promoPrice.toLocaleString("id-ID")}
-                </span>
-              </div>
-
-              {sale.status === "active" && (
-                <div className="pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEndPromo(sale.id)}
-                    className="w-full text-xs text-error rounded-xl"
-                  >
-                    Hentikan Promo
-                  </Button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        <Pagination currentPage={meta.page} totalPages={meta.totalPages} totalItems={meta.total} pageSize={meta.limit} onPageChange={setPage} isLiveApi={!loading} />
       </div>
 
-      {/* Add Sale Modal */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      {/* Create Modal */}
+      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="max-w-md rounded-2xl p-6">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">campaign</span>
-              Jadwalkan Flash Sale Tema
-            </DialogTitle>
-            <DialogDescription>
-              Tentukan produk tema dan potongan harga khusus promosi.
-            </DialogDescription>
+            <DialogTitle className="text-lg font-bold">Buat Flash Sale Baru</DialogTitle>
+            <DialogDescription>Atur diskon tempo terbatas untuk produk tema undangan.</DialogDescription>
           </DialogHeader>
-
-          <form onSubmit={handleCreateSale} className="space-y-3.5 my-2">
-            <div>
-              <Label className="text-xs font-semibold">Tema Sasaran</Label>
-              <select
-                value={formData.productId}
-                onChange={(e) => setFormData({ ...formData, productId: Number(e.target.value) })}
-                className="mt-1 w-full h-10 px-3 rounded-xl bg-surface-container-low text-xs font-medium border-0 focus:ring-2 focus:ring-primary outline-none"
-              >
-                {MOCK_PRODUCTS.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} (Normal: Rp {p.price.toLocaleString("id-ID")})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <Label className="text-xs font-semibold">Nama Label Promo</Label>
-              <Input
-                placeholder="Contoh: Flash Sale 9.9"
-                value={formData.label}
-                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                className="mt-1 rounded-xl"
-                required
-              />
-            </div>
-
-            <div>
-              <Label className="text-xs font-semibold">Harga Diskon Flash Sale (Rp)</Label>
-              <Input
-                type="number"
-                value={formData.promoPrice}
-                onChange={(e) => setFormData({ ...formData, promoPrice: Number(e.target.value) })}
-                className="mt-1 rounded-xl font-semibold"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs font-semibold">Mulai Tanggal</Label>
-                <Input
-                  type="datetime-local"
-                  value={formData.startsAt}
-                  onChange={(e) => setFormData({ ...formData, startsAt: e.target.value })}
-                  className="mt-1 rounded-xl text-xs"
-                  required
-                />
+          <form onSubmit={handleCreatePromo} className="space-y-4 my-2">
+            {[
+              { id: "eventProductId", label: "ID Produk Tema", type: "number", placeholder: "cth. 12" },
+              { id: "promoPrice", label: "Harga Promo (Rp)", type: "number", placeholder: "cth. 150000" },
+              { id: "label", label: "Label Promo", type: "text", placeholder: "cth. Diskon 40%" },
+              { id: "startsAt", label: "Mulai Promo", type: "datetime-local", placeholder: "" },
+              { id: "endsAt", label: "Akhir Promo", type: "datetime-local", placeholder: "" },
+            ].map((field) => (
+              <div key={field.id} className="space-y-1.5">
+                <Label htmlFor={field.id} className="text-xs font-semibold">{field.label}</Label>
+                <Input id={field.id} type={field.type} placeholder={field.placeholder} value={newPromo[field.id as keyof typeof newPromo]} onChange={(e) => setNewPromo((p) => ({ ...p, [field.id]: e.target.value }))} className="rounded-xl h-10" />
               </div>
-
-              <div>
-                <Label className="text-xs font-semibold">Berakhir Tanggal</Label>
-                <Input
-                  type="datetime-local"
-                  value={formData.endsAt}
-                  onChange={(e) => setFormData({ ...formData, endsAt: e.target.value })}
-                  className="mt-1 rounded-xl text-xs"
-                  required
-                />
-              </div>
-            </div>
-
-            <DialogFooter className="pt-2 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsModalOpen(false)}
-                className="rounded-xl"
-              >
-                Batal
-              </Button>
-              <Button type="submit" className="rounded-xl bg-primary text-on-primary">
-                Simpan Flash Sale
+            ))}
+            <DialogFooter className="gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} disabled={creating} className="rounded-xl">Batal</Button>
+              <Button type="submit" disabled={creating} className="rounded-xl bg-primary text-on-primary">
+                {creating ? "Membuat..." : "Buat Flash Sale"}
               </Button>
             </DialogFooter>
           </form>

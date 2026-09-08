@@ -1,182 +1,117 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { EventAttendance } from "@/types/superadmin";
-import { MOCK_ATTENDANCES } from "@/lib/mock-superadmin-data";
+import { attendancesApi, PaginationMeta } from "@/lib/api-superadmin";
+import { ApiError } from "@/lib/api";
 import { toastManager } from "@/components/ui/toast";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Pagination } from "@/components/ui/pagination";
 
-export default function EventAttendancesPage() {
-  const [attendances, setAttendances] = useState<EventAttendance[]>(MOCK_ATTENDANCES);
+const DEFAULT_META: PaginationMeta = { total: 0, page: 1, limit: 15, totalPages: 1, hasNextPage: false, hasPrevPage: false };
+
+export default function AttendancesPage() {
+  const [attendances, setAttendances] = useState<EventAttendance[]>([]);
+  const [meta, setMeta] = useState<PaginationMeta>(DEFAULT_META);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filtered = attendances.filter(
-    (a) =>
-      a.attendeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.qrCodeScanned.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.eventTitle.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await attendancesApi.list({ page, limit: 15, search: searchQuery || undefined });
+      const d = res.data as { items: EventAttendance[]; meta: PaginationMeta };
+      setAttendances(d.items ?? []);
+      setMeta(d.meta ?? DEFAULT_META);
+    } catch (err) {
+      toastManager.error(err instanceof ApiError ? err.message : "Gagal memuat log presensi.");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, searchQuery]);
 
-  const handleToggleSouvenir = (id: number) => {
-    setAttendances((prev) =>
-      prev.map((a) =>
-        a.id === id
-          ? {
-              ...a,
-              souvenirStatus:
-                a.souvenirStatus === "Sudah Diberikan" ? "Belum" : "Sudah Diberikan",
-            }
-          : a
-      )
-    );
-    toastManager.info("Status serah terima suvenir telah diperbarui.");
-  };
+  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { setPage(1); }, [searchQuery]);
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-background">
-            Log Presensi & Check-in QR Hari-H
-          </h1>
-          <p className="text-sm text-on-surface-variant mt-1">
-            Riwayat presensi tamu dan penerimaan suvenir secara real-time di lokasi acara.
-          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-background">Log Presensi Scan QR</h1>
+          <p className="text-sm text-on-surface-variant mt-1">Monitor seluruh rekaman check-in tamu hari-H menggunakan QR Code & metode manual.</p>
         </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            toastManager.success("Rekapitulasi absensi presensi berhasil diunduh.");
-          }}
-          className="flex items-center gap-2 rounded-xl"
-        >
-          <span className="material-symbols-outlined text-lg">download</span>
-          <span>Unduh Rekap Presensi</span>
+        <Button size="sm" variant="outline" onClick={fetchData} disabled={loading} className="rounded-xl flex items-center gap-2">
+          <span className="material-symbols-outlined text-lg">refresh</span>
+          <span className="hidden sm:inline">Segarkan</span>
         </Button>
       </div>
 
-      {/* Toolbar */}
       <div className="p-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm">
-        <div className="relative max-w-md">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">
-            search
-          </span>
-          <Input
-            type="text"
-            placeholder="Cari kode QR, nama tamu yang hadir, atau meja..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-10 rounded-xl bg-surface-container-low border-0"
-          />
+        <div className="relative flex-1 max-w-md flex gap-2">
+          <div className="relative flex-1">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">search</span>
+            <Input type="text" placeholder="Cari nama peserta, acara..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && setSearchQuery(searchInput)} className="pl-10 h-10 rounded-xl bg-surface-container-low border-0" />
+          </div>
+          <Button size="sm" onClick={() => setSearchQuery(searchInput)} className="h-10 rounded-xl">Cari</Button>
         </div>
       </div>
 
-      {/* Attendance Table */}
       <div className="rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm overflow-hidden">
-        <div className="hidden md:block overflow-x-auto">
+        <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-surface-container-low/50 text-xs font-semibold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant/20">
               <tr>
-                <th className="py-3.5 px-4">Tamu Hadir</th>
-                <th className="py-3.5 px-4">Kode QR Scanned</th>
-                <th className="py-3.5 px-4">Acara Undangan</th>
-                <th className="py-3.5 px-4">Pax Riil</th>
-                <th className="py-3.5 px-4">Gerbang & Petugas</th>
-                <th className="py-3.5 px-4">Suvenir</th>
-                <th className="py-3.5 px-4">Waktu Check-in</th>
-                <th className="py-3.5 px-4 text-right">Aksi</th>
+                <th className="py-3.5 px-4">Peserta</th>
+                <th className="py-3.5 px-4">Acara</th>
+                <th className="py-3.5 px-4">Sesi</th>
+                <th className="py-3.5 px-4">Metode</th>
+                <th className="py-3.5 px-4">Pax Aktual</th>
+                <th className="py-3.5 px-4">Souvenir</th>
+                <th className="py-3.5 px-4">Waktu Masuk</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant/20 text-on-surface text-xs">
-              {filtered.map((att) => (
+            <tbody className="divide-y divide-outline-variant/20 text-on-surface">
+              {loading ? (
+                Array.from({ length: 8 }).map((_, i) => (
+                  <tr key={i}>{Array.from({ length: 7 }).map((_, j) => (
+                    <td key={j} className="py-3 px-4"><div className="h-4 bg-surface-container-low rounded animate-pulse" /></td>
+                  ))}</tr>
+                ))
+              ) : attendances.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-on-surface-variant">
+                    <span className="material-symbols-outlined text-4xl block mb-2 opacity-50">qr_code_scanner</span>
+                    Tidak ada rekaman presensi.
+                  </td>
+                </tr>
+              ) : attendances.map((att) => (
                 <tr key={att.id} className="hover:bg-surface-container-low/30 transition-colors">
-                  <td className="py-3.5 px-4">
-                    <div className="font-bold text-sm text-on-surface">{att.attendeeName}</div>
-                    <span className="text-[10px] text-on-surface-variant block">
-                      Metode: {att.checkinMethod}
+                  <td className="py-3 px-4 font-semibold">{att.attendeeName}</td>
+                  <td className="py-3 px-4 text-xs max-w-[160px] truncate">{att.eventTitle}</td>
+                  <td className="py-3 px-4 text-xs">{att.sessionName}</td>
+                  <td className="py-3 px-4">
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${att.checkinMethod === "Scan QR" ? "bg-primary-container text-on-primary-container" : "bg-surface-variant text-on-surface-variant"}`}>
+                      <span className="material-symbols-outlined text-sm">{att.checkinMethod === "Scan QR" ? "qr_code_scanner" : "keyboard"}</span>
+                      {att.checkinMethod}
                     </span>
                   </td>
-
-                  <td className="py-3.5 px-4 font-mono font-bold text-primary">
-                    {att.qrCodeScanned}
+                  <td className="py-3 px-4 font-medium">{att.actualPax} orang</td>
+                  <td className="py-3 px-4">
+                    <StatusBadge variant={att.souvenirStatus === "Sudah Diberikan" ? "sukses" : "pending"} label={att.souvenirStatus} />
                   </td>
-
-                  <td className="py-3.5 px-4 font-medium text-on-surface max-w-xs truncate">
-                    {att.eventTitle}
-                  </td>
-
-                  <td className="py-3.5 px-4 font-bold text-emerald-700">
-                    {att.actualPax} Pax
-                  </td>
-
-                  <td className="py-3.5 px-4">
-                    <div className="font-medium text-on-surface">{att.gateOrDesk}</div>
-                    <div className="text-[10px] text-on-surface-variant">Oleh: {att.checkedInByLabel}</div>
-                  </td>
-
-                  <td className="py-3.5 px-4">
-                    <button
-                      onClick={() => handleToggleSouvenir(att.id)}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1 ${
-                        att.souvenirStatus === "Sudah Diberikan"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : "bg-amber-100 text-amber-800"
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-xs">
-                        {att.souvenirStatus === "Sudah Diberikan" ? "card_giftcard" : "hourglass_empty"}
-                      </span>
-                      {att.souvenirStatus}
-                    </button>
-                  </td>
-
-                  <td className="py-3.5 px-4 text-on-surface-variant font-mono">
-                    {new Date(att.checkedInAt).toLocaleTimeString("id-ID", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                    })}
-                  </td>
-
-                  <td className="py-3.5 px-4 text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toastManager.info(`Log audit presensi ${att.attendeeName} valid.`)}
-                      className="h-8 text-xs text-primary rounded-lg"
-                    >
-                      Audit
-                    </Button>
+                  <td className="py-3 px-4 text-xs text-on-surface-variant">
+                    {new Date(att.checkedInAt).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-
-        {/* Mobile Cards */}
-        <div className="md:hidden divide-y divide-outline-variant/20 p-3 space-y-3">
-          {filtered.map((att) => (
-            <div key={att.id} className="p-4 rounded-xl bg-surface-container-low space-y-2">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-bold text-on-surface text-sm">{att.attendeeName}</div>
-                  <span className="font-mono text-xs text-primary font-bold">{att.qrCodeScanned}</span>
-                </div>
-                <span className="font-bold text-emerald-700 text-sm">{att.actualPax} Pax</span>
-              </div>
-
-              <div className="flex items-center justify-between text-xs pt-1 border-t border-outline-variant/20">
-                <span className="text-on-surface-variant">{att.gateOrDesk}</span>
-                <span className="font-semibold text-on-surface">{att.souvenirStatus}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <Pagination currentPage={meta.page} totalPages={meta.totalPages} totalItems={meta.total} pageSize={meta.limit} onPageChange={setPage} isLiveApi={!loading} />
       </div>
     </div>
   );

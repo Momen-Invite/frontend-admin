@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { Topbar } from "@/components/layout/Topbar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -103,10 +103,7 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Verifikasi Pembayaran & Daftar Pesanan"
-        description="Tinjau pesanan undangan digital paket a-la-carte dan validasi bukti transfer manual dari pemesan."
-      />
+      <Topbar title="Verifikasi Pesanan" searchPlaceholder="Cari order atau host..." />
 
       <Card className="border-border shadow-sm">
         <CardHeader>

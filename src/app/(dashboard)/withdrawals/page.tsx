@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { Topbar } from "@/components/layout/Topbar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -171,15 +171,7 @@ export default function WithdrawalsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Audit Persetujuan Penarikan Dana (Withdrawals)"
-        description="Wewenang eksklusif Super Admin: Verifikasi transfer kas riil ke rekening host sebelum mengesahkan status."
-      >
-        <Badge variant="outline" className="gap-1.5 py-1.5 px-3 border-primary/30 text-primary">
-          <ShieldCheck className="h-4 w-4" />
-          Role Super Admin Verified
-        </Badge>
-      </PageHeader>
+      <Topbar title="Audit Penarikan Dana" searchPlaceholder="Cari host atau rekening..." />
 
       <Card className="border-border shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between">

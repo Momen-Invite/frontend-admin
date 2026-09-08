@@ -7,7 +7,7 @@ export class ApiError extends Error {
   error: string;
   details?: Record<string, unknown> | null;
 
-  constructor(status: number, message: string, error = "API_ERROR", details = null) {
+  constructor(status: number, message: string, error = "API_ERROR", details: Record<string, unknown> | null | undefined = null) {
     super(message);
     this.name = "ApiError";
     this.status = status;

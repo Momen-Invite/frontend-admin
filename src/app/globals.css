@@ -2,77 +2,211 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Google Material Symbols (ikon dari referensi Stitch) ─────────────────── */
+/* Diload via <link> di layout.tsx root */
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+/* ─── CSS Variables (MD3-aligned) ───────────────────────────────────────────── */
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 224 71.4% 4.1%;
-    --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.75rem;
+    /* Background & surface */
+    --background: 210 20% 98%;
+    --foreground: 220 13% 10%;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 224 71.4% 4.1%;
-    --sidebar-primary: 221.2 83.2% 53.3%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 220 14.3% 95.9%;
-    --sidebar-accent-foreground: 220.9 39.3% 11%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 221.2 83.2% 53.3%;
+    /* Card */
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 10%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 10%;
+
+    /* Primary — Amber/Gold brand */
+    --primary: 36 100% 26%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary */
+    --secondary: 36 50% 31%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted — surface container low */
+    --muted: 220 9% 95%;
+    --muted-foreground: 27 17% 31%;
+
+    /* Accent */
+    --accent: 36 88% 60%;
+    --accent-foreground: 36 100% 8%;
+
+    /* Destructive */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Border, Input, Ring */
+    --border: 220 9% 87%;
+    --input: 220 9% 87%;
+    --ring: 36 100% 26%;
+
+    /* Border radius */
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 40% 98%;
-    --card: 224 71.4% 6%;
-    --card-foreground: 210 40% 98%;
-    --popover: 224 71.4% 6%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --background: 220 13% 9%;
+    --foreground: 210 20% 95%;
+    --card: 220 13% 11%;
+    --card-foreground: 210 20% 95%;
+    --popover: 220 13% 11%;
+    --popover-foreground: 210 20% 95%;
+    --primary: 36 100% 55%;
+    --primary-foreground: 36 100% 8%;
+    --secondary: 36 30% 20%;
+    --secondary-foreground: 210 20% 95%;
+    --muted: 220 13% 15%;
+    --muted-foreground: 220 9% 60%;
+    --accent: 36 88% 60%;
+    --accent-foreground: 36 100% 8%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-
-    --sidebar-background: 224 71.4% 5%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217.2 91.2% 59.8%;
-    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
-    --sidebar-accent: 217.2 32.6% 17.5%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 224.3 76.3% 48%;
+    --border: 220 13% 18%;
+    --input: 220 13% 18%;
+    --ring: 36 100% 55%;
   }
 }
 
+/* ─── Base Styles ────────────────────────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-surface-container-low text-on-background;
+    font-family: "Inter", sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+}
+
+/* ─── DragToConfirm Slider ───────────────────────────────────────────────────── */
+.slider-track {
+  position: relative;
+  background-color: #f3f4f6;
+  border-radius: 9999px;
+  height: 48px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider-thumb {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  height: 40px;
+  width: 40px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+  z-index: 10;
+  transition: none;
+  user-select: none;
+}
+
+.slider-thumb:active {
+  cursor: grabbing;
+}
+
+.slider-text {
+  color: #514535;
+  font-size: 13px;
+  font-weight: 600;
+  user-select: none;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.slider-progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background-color: #f2a93b;
+  width: 0%;
+  border-radius: 9999px;
+  z-index: 5;
+  opacity: 0.2;
+  transition: width 0.05s linear;
+}
+
+/* ─── Scrollbar Styling ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6c3af;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b4a18f;
+}
+
+/* ─── Skeleton Shimmer Effect ──────────────────────────────────────────────── */
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: skeleton-shimmer 1.6s infinite;
 }

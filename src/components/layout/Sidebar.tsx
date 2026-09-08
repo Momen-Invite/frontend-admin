@@ -40,7 +40,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-lg top-lg bottom-lg w-sidebar-width rounded-xl bg-surface-container-lowest shadow-card flex flex-col items-center py-lg space-y-md z-20">
+    <aside className="hidden md:flex fixed left-lg top-lg bottom-lg w-sidebar-width rounded-xl bg-surface-container-lowest shadow-card flex-col items-center py-lg space-y-md z-20">
       {/* Logo Mark */}
       <div className="mb-lg">
         <div className="w-12 h-12 bg-on-background text-surface-container-lowest rounded-lg flex items-center justify-center font-bold text-base tracking-tight select-none">

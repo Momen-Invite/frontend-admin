@@ -44,33 +44,81 @@ export function GiftHistoryTable({
   return (
     <section className="bg-surface-container-lowest rounded-xl shadow-card flex flex-col overflow-hidden">
       {/* Section Header */}
-      <div className="p-lg pb-md border-b border-surface-container-highest flex justify-between items-center bg-surface-container-lowest">
-        <h2 className="text-headline-md font-headline-md text-on-background">
+      <div className="p-4 sm:p-lg pb-3 sm:pb-md border-b border-surface-container-highest flex justify-between items-center bg-surface-container-lowest">
+        <h2 className="text-base sm:text-headline-md font-semibold sm:font-headline-md text-on-background">
           Riwayat Amplop Digital
         </h2>
         {onViewAll && (
           <button
             type="button"
             onClick={onViewAll}
-            className="text-primary text-button-text font-button-text hover:underline text-sm"
+            className="text-primary text-button-text font-button-text hover:underline text-xs sm:text-sm font-semibold"
           >
             Lihat Semua
           </button>
         )}
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
+      {/* Mobile Card-List View (sm:hidden) */}
+      <div className="sm:hidden divide-y divide-surface-container-highest">
+        {transactions.map((tx, idx) => (
+          <div key={tx.id} className="p-4 space-y-2 hover:bg-surface-bright/50 transition-colors">
+            <div className="flex justify-between items-start gap-2">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                    AVATAR_COLORS[idx % AVATAR_COLORS.length]
+                  }`}
+                >
+                  {getInitials(tx.guestName)}
+                </div>
+                <div className="min-w-0">
+                  <div className="font-semibold text-on-background text-sm truncate">
+                    {tx.guestName}
+                  </div>
+                  {tx.message && (
+                    <div className="text-xs text-on-surface-variant italic truncate max-w-[200px]">
+                      &ldquo;{tx.message}&rdquo;
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="text-data-numeric font-data-numeric text-success font-semibold text-sm shrink-0">
+                +{formatCurrency(tx.amount)}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-xs text-on-surface-variant pt-1">
+              <div className="flex items-center gap-2">
+                <span>{tx.time}</span>
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-surface-variant text-on-surface-variant">
+                  {tx.method}
+                </span>
+              </div>
+              <StatusBadge variant={tx.status} />
+            </div>
+          </div>
+        ))}
+
+        {transactions.length === 0 && (
+          <div className="py-8 text-center text-on-surface-variant text-xs">
+            Belum ada transaksi amplop digital
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table View (hidden sm:block) */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-surface-container-highest text-on-surface-variant text-label-capsule font-label-capsule uppercase tracking-wider bg-surface-bright/50">
-              <th className="py-3 px-lg font-semibold">Tamu</th>
+              <th className="py-3 px-4 lg:px-lg font-semibold">Tamu</th>
               <th className="py-3 px-4 font-semibold hidden md:table-cell">
                 Waktu
               </th>
               <th className="py-3 px-4 font-semibold">Metode</th>
               <th className="py-3 px-4 font-semibold text-right">Jumlah</th>
-              <th className="py-3 px-lg font-semibold text-center">Status</th>
+              <th className="py-3 px-4 lg:px-lg font-semibold text-center">Status</th>
             </tr>
           </thead>
           <tbody className="text-body-sm font-body-sm">
@@ -80,7 +128,7 @@ export function GiftHistoryTable({
                 className="border-b border-surface-container-highest hover:bg-surface-bright transition-colors last:border-0"
               >
                 {/* Guest */}
-                <td className="py-3 px-lg">
+                <td className="py-3 px-4 lg:px-lg">
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-8 h-8 rounded-md flex items-center justify-center font-bold text-xs shrink-0 ${
@@ -115,12 +163,12 @@ export function GiftHistoryTable({
                 </td>
 
                 {/* Amount */}
-                <td className="py-3 px-4 text-right text-data-numeric font-data-numeric text-success">
-                  {formatCurrency(tx.amount)}
+                <td className="py-3 px-4 text-right text-data-numeric font-data-numeric text-success font-semibold">
+                  +{formatCurrency(tx.amount)}
                 </td>
 
                 {/* Status */}
-                <td className="py-3 px-lg text-center">
+                <td className="py-3 px-4 lg:px-lg text-center">
                   <StatusBadge variant={tx.status} />
                 </td>
               </tr>

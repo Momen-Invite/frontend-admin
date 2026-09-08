@@ -71,26 +71,26 @@ function MetricCard({
   iconColorClass,
 }: MetricCardProps) {
   return (
-    <div className="bg-surface-container-lowest rounded-xl shadow-card p-lg flex flex-col gap-3">
+    <div className="bg-surface-container-lowest rounded-xl shadow-card p-4 sm:p-5 lg:p-lg flex flex-col gap-2.5 sm:gap-3 transition-shadow hover:shadow-md">
       <div className="flex items-center justify-between">
-        <p className="text-label-capsule font-label-capsule text-on-surface-variant uppercase tracking-wider">
+        <p className="text-[11px] sm:text-label-capsule font-label-capsule text-on-surface-variant uppercase tracking-wider font-semibold">
           {title}
         </p>
         <div
-          className={`w-9 h-9 rounded-lg flex items-center justify-center ${iconBgClass}`}
+          className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0 ${iconBgClass}`}
         >
           <span
-            className={`material-symbols-outlined text-[20px] ${iconColorClass}`}
+            className={`material-symbols-outlined text-[18px] sm:text-[20px] ${iconColorClass}`}
           >
             {iconName}
           </span>
         </div>
       </div>
       <div>
-        <p className="text-headline-lg font-headline-lg text-on-background">
+        <p className="text-xl sm:text-2xl lg:text-headline-lg font-bold font-headline-lg text-on-background tracking-tight">
           {value}
         </p>
-        <p className="text-body-sm font-body-sm text-on-surface-variant mt-1">
+        <p className="text-xs sm:text-body-sm font-body-sm text-on-surface-variant mt-0.5">
           {sub}
         </p>
       </div>
@@ -145,18 +145,18 @@ export default function DashboardOverviewPage() {
         </div>
 
         {/* Chart + Withdrawal Queue */}
-        <div className="grid gap-lg lg:grid-cols-12 flex-grow">
+        <div className="grid gap-md sm:gap-lg lg:grid-cols-12 flex-grow">
           {/* Revenue / Gifts Trend Chart */}
-          <section className="lg:col-span-7 bg-surface-container-lowest rounded-xl shadow-card p-lg flex flex-col">
+          <section className="lg:col-span-7 bg-surface-container-lowest rounded-xl shadow-card p-4 sm:p-5 lg:p-lg flex flex-col">
             <div className="mb-4">
-              <h2 className="text-headline-md font-headline-md text-on-background">
+              <h2 className="text-base sm:text-headline-md font-semibold sm:font-headline-md text-on-background">
                 Tren Pendapatan & Kado Digital
               </h2>
-              <p className="text-body-sm font-body-sm text-on-surface-variant mt-1">
+              <p className="text-xs sm:text-body-sm font-body-sm text-on-surface-variant mt-0.5">
                 Grafik 7 hari terakhir — paket vs amplop kado digital (QRIS)
               </p>
             </div>
-            <div className="h-64 w-full">
+            <div className="h-56 sm:h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
@@ -257,29 +257,29 @@ export default function DashboardOverviewPage() {
 
           {/* Pending Withdrawal Queue */}
           <section className="lg:col-span-5 bg-surface-container-lowest rounded-xl shadow-card flex flex-col overflow-hidden">
-            <div className="p-lg pb-md border-b border-surface-container-highest flex justify-between items-center">
+            <div className="p-4 sm:p-5 lg:p-lg pb-3 sm:pb-md border-b border-surface-container-highest flex justify-between items-center">
               <div>
-                <h2 className="text-headline-md font-headline-md text-on-background">
+                <h2 className="text-base sm:text-headline-md font-semibold sm:font-headline-md text-on-background">
                   Antrean Penarikan Dana
                 </h2>
-                <p className="text-body-sm font-body-sm text-on-surface-variant mt-0.5">
+                <p className="text-xs sm:text-body-sm font-body-sm text-on-surface-variant mt-0.5">
                   Menunggu transfer kas manual
                 </p>
               </div>
               <StatusBadge variant="pending" label="3 Pending" />
             </div>
 
-            <div className="flex-1 p-lg space-y-3">
+            <div className="flex-1 p-4 sm:p-5 lg:p-lg space-y-3">
               {pendingWithdrawals.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between rounded-lg border border-surface-container-highest p-3 bg-surface-bright/50 hover:bg-surface-bright transition-colors"
+                  className="flex items-center justify-between rounded-lg border border-surface-container-highest p-3 bg-surface-bright/50 hover:bg-surface-bright transition-colors gap-2"
                 >
-                  <div className="space-y-0.5 min-w-0">
+                  <div className="space-y-0.5 min-w-0 flex-1">
                     <p className="text-body-sm font-semibold text-on-background truncate">
                       {item.hostName}
                     </p>
-                    <p className="text-[11px] text-on-surface-variant">
+                    <p className="text-[11px] text-on-surface-variant truncate">
                       {item.bank} • {item.account}
                     </p>
                     <span className="text-[10px] text-on-surface-variant flex items-center gap-1">
@@ -289,14 +289,14 @@ export default function DashboardOverviewPage() {
                       {item.time}
                     </span>
                   </div>
-                  <div className="text-right space-y-1.5 shrink-0 ml-3">
-                    <div className="text-data-numeric font-data-numeric text-success text-sm">
+                  <div className="text-right space-y-1.5 shrink-0 ml-2">
+                    <div className="text-data-numeric font-data-numeric text-success text-xs sm:text-sm font-semibold">
                       {formatCurrency(item.amount)}
                     </div>
                     <Link href="/withdrawals">
                       <button
                         type="button"
-                        className="h-7 px-3 text-[11px] font-semibold bg-surface-container rounded-lg border border-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container hover:border-primary-container transition-colors"
+                        className="h-7 px-2.5 sm:px-3 text-[11px] font-semibold bg-surface-container rounded-lg border border-surface-container-highest text-on-surface hover:bg-primary-container hover:text-on-primary-container hover:border-primary-container transition-colors"
                       >
                         Review
                       </button>
@@ -306,11 +306,11 @@ export default function DashboardOverviewPage() {
               ))}
             </div>
 
-            <div className="p-lg pt-0">
+            <div className="p-4 sm:p-5 lg:p-lg pt-0">
               <Link href="/withdrawals" className="w-full">
                 <button
                   type="button"
-                  className="w-full py-2.5 text-button-text font-button-text text-primary bg-surface-container rounded-lg border border-outline-variant hover:bg-primary-container hover:text-on-primary-container hover:border-primary-container transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-2.5 text-button-text font-button-text text-primary bg-surface-container rounded-lg border border-outline-variant hover:bg-primary-container hover:text-on-primary-container hover:border-primary-container transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"
                 >
                   Buka Konsol Persetujuan
                   <span className="material-symbols-outlined text-[16px]">

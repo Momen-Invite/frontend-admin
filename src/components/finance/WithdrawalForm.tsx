@@ -37,8 +37,8 @@ export function WithdrawalForm({ maxAmount, onSubmit }: WithdrawalFormProps) {
   };
 
   return (
-    <section className="bg-surface-container-lowest rounded-xl shadow-card p-lg flex flex-col">
-      <h2 className="text-headline-md font-headline-md text-on-background mb-4">
+    <section className="bg-surface-container-lowest rounded-xl shadow-card p-4 sm:p-lg flex flex-col">
+      <h2 className="text-base sm:text-headline-md font-semibold sm:font-headline-md text-on-background mb-3 sm:mb-4">
         Form Pengajuan Withdrawal
       </h2>
 

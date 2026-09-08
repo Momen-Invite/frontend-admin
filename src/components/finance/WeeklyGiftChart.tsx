@@ -32,10 +32,10 @@ export function WeeklyGiftChart({
   const activeBar = data.find((d) => d.isActive);
 
   return (
-    <section className="bg-surface-container-lowest rounded-xl shadow-card p-lg">
+    <section className="bg-surface-container-lowest rounded-xl shadow-card p-4 sm:p-lg">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-headline-md font-headline-md text-on-background">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h2 className="text-base sm:text-headline-md font-semibold sm:font-headline-md text-on-background">
           {title}
         </h2>
         <button

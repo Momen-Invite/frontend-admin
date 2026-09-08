@@ -12,20 +12,20 @@ export function BalanceCard({
   onWithdrawClick,
 }: BalanceCardProps) {
   return (
-    <section className="bg-surface-container-lowest rounded-xl shadow-card p-lg flex flex-col relative overflow-hidden">
+    <section className="bg-surface-container-lowest rounded-xl shadow-card p-4 sm:p-lg flex flex-col relative overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-2 text-on-surface-variant mb-4">
+      <div className="flex items-center gap-2 text-on-surface-variant mb-3 sm:mb-4">
         <span className="material-symbols-outlined text-lg">
           account_balance_wallet
         </span>
-        <h2 className="text-headline-md font-headline-md text-on-background">
+        <h2 className="text-base sm:text-headline-md font-semibold sm:font-headline-md text-on-background">
           Saldo Amplop Digital
         </h2>
       </div>
 
       {/* Amount */}
       <div className="mb-1">
-        <span className="text-display font-display text-on-background tracking-tight">
+        <span className="text-2xl sm:text-3xl lg:text-display font-extrabold font-display text-on-background tracking-tight">
           {formatCurrency(balance)}
         </span>
       </div>

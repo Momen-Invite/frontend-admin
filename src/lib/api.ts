@@ -1,6 +1,11 @@
 import { ApiResponse, ApiErrorResponse } from "@/types/api";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.momeninvite.web.id";
+// Gunakan path relatif agar request diproses melalui Next.js API Proxy (next.config.ts).
+// Proxy meneruskan /api/* → https://api.momeninvite.web.id/api/*  server-side,
+// sehingga cookie connect.sid dikirim dengan benar (same-origin).
+const API_BASE_URL = typeof window !== "undefined"
+  ? "" // client-side: pakai relative path → melewati Next.js proxy
+  : (process.env.NEXT_PUBLIC_API_URL || "https://api.momeninvite.web.id"); // server-side (middleware, dll)
 
 export class ApiError extends Error {
   status: number;

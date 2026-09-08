@@ -49,7 +49,18 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
+    const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "https://api.momeninvite.web.id";
     return [
+      // ── API Proxy ──────────────────────────────────────────────────────────
+      // Meneruskan semua request /api/* ke backend Momen Invite.
+      // Ini menyelesaikan masalah cross-origin cookie (connect.sid):
+      // Browser mengirim request ke localhost:3000/api/* (same-origin),
+      // Next.js meneruskannya ke api.momeninvite.web.id/api/* server-side.
+      {
+        source: "/api/:path*",
+        destination: `${API_ORIGIN}/api/:path*`,
+      },
+      // ── Admin Path Aliases ─────────────────────────────────────────────────
       {
         source: "/admin",
         destination: "/",

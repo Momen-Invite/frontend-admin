@@ -58,8 +58,11 @@ import {
   MOCK_ACTIVITY_LOGS,
 } from "@/lib/mock-superadmin-data";
 
+// Gunakan path relatif (sama seperti api.ts) agar melewati Next.js proxy
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://api.momeninvite.web.id";
+  typeof window !== "undefined"
+    ? "" // client-side → relative path → Next.js proxy
+    : (process.env.NEXT_PUBLIC_API_URL || "https://api.momeninvite.web.id");
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -79,7 +82,9 @@ async function safeFetch<T>(
   filterFn?: (item: T) => boolean
 ): Promise<PaginatedResult<T>> {
   try {
-    const url = new URL(`${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`);
+    const base = API_BASE_URL || "";
+    const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+    const url = new URL(`${base}${path}`, typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
     url.searchParams.set("page", String(page));
     url.searchParams.set("limit", String(limit));
 

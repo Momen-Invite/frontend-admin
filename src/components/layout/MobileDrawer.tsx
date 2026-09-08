@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -84,6 +85,7 @@ const NAV_SECTIONS: NavSection[] = [
 
 export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -204,9 +206,9 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
         <div className="pt-3 border-t border-surface-variant/40 mt-auto">
           <button
             type="button"
-            onClick={() => {
+            onClick={async () => {
               onClose();
-              window.location.href = "/login";
+              await logout();
             }}
             className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-error font-semibold rounded-xl hover:bg-error/10 transition-colors"
           >

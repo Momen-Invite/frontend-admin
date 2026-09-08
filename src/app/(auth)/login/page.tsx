@@ -1,135 +1,251 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { toast } from "sonner";
-import { Lock, Mail, Sparkles, ShieldAlert, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/context/AuthContext";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 
+// ── Google Icon ─────────────────────────────────────────────────────────────
+const IconGoogle = () => (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      fill="#4285F4"
+    />
+    <path
+      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      fill="#34A853"
+    />
+    <path
+      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+      fill="#FBBC05"
+    />
+    <path
+      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+      fill="#EA4335"
+    />
+  </svg>
+);
+
+// ── Schema ─────────────────────────────────────────────────────────────────
 const loginSchema = z.object({
-  email: z.string().email("Alamat email tidak valid"),
-  password: z.string().min(6, "Password minimal 6 karakter"),
+  email: z.string().email("Format email tidak valid"),
+  password: z.string().min(8, "Password minimal 8 karakter"),
 });
-
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+// ── Inner Component ────────────────────────────────────────────────────────
+function LoginPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [lockoutMsg, setLockoutMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.replace(searchParams.get("from") || "/");
+    }
+  }, [isAuthenticated, authLoading, router, searchParams]);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: { email: "", password: "" },
   });
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
+    setLockoutMsg(null);
     try {
-      // Simulation or real POST /api/auth/admin/login call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Login berhasil! Mengalihkan ke dasbor...");
-      router.push("/");
-    } catch (error) {
-      toast.error((error as Error).message || "Gagal masuk. Periksa email dan password Anda.");
+      await login(data);
+    } catch (err: unknown) {
+      const e = err as { status?: number };
+      if (e?.status === 423) {
+        setLockoutMsg("Akun terkunci 15 menit karena terlalu banyak percobaan gagal.");
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#f7f7f8]">
+        <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <Card className="w-full max-w-md border-slate-800 bg-slate-900/90 text-white shadow-2xl backdrop-blur-xl">
-      <CardHeader className="space-y-3 text-center pb-6">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/30">
-          <Sparkles className="h-6 w-6 text-white" />
-        </div>
-        <div>
-          <CardTitle className="text-2xl font-bold tracking-tight text-white">
-            Momen Invite Admin
-          </CardTitle>
-          <CardDescription className="text-slate-400 mt-1 text-xs">
-            Portal Administrasi Terpusat & Audit Keuangan Ekosistem
-          </CardDescription>
-        </div>
-      </CardHeader>
+    <div className="min-h-screen bg-[#f7f7f8] flex items-center justify-center p-4">
+      {/* Subtle background blobs */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-green-100/60 blur-3xl" />
+        <div className="absolute -bottom-32 -right-32 w-[500px] h-[500px] rounded-full bg-purple-100/40 blur-3xl" />
+      </div>
 
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-xs font-semibold text-slate-300">
-              Email Administrator
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-              <Input
-                id="email"
-                type="email"
-                placeholder="admin@momeninvite.com"
-                className="pl-9 bg-slate-950/50 border-slate-700 text-white placeholder:text-slate-500 focus:border-primary"
-                {...register("email")}
-              />
-            </div>
-            {errors.email && (
-              <p className="text-xs text-rose-400">{errors.email.message}</p>
-            )}
-          </div>
+      {/* Card */}
+      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] p-8 sm:p-10 animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-500">
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password" className="text-xs font-semibold text-slate-300">
-                Password
-              </Label>
+        {/* Brand */}
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center gap-2 mb-6">
+            <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
+              <span className="material-symbols-outlined text-white text-base">
+                celebration
+              </span>
             </div>
-            <div className="relative">
-              <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                className="pl-9 bg-slate-950/50 border-slate-700 text-white placeholder:text-slate-500 focus:border-primary"
-                {...register("password")}
-              />
-            </div>
-            {errors.password && (
-              <p className="text-xs text-rose-400">{errors.password.message}</p>
-            )}
-          </div>
-
-          <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 p-3 text-[11px] text-amber-300 flex items-start gap-2">
-            <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
-            <span>
-              Sistem menerapkan <strong>Brute-Force Lockout</strong>: 5x kegagalan berturut-turut akan mengunci akun selama 15 menit.
+            <span className="font-bold text-gray-900 text-base tracking-tight">
+              Momen Invite
             </span>
           </div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight leading-snug">
+            Masuk ke Admin Panel
+          </h1>
+          <p className="text-sm text-gray-500 mt-1.5">
+            Kelola undangan, pengguna, dan konten platform
+          </p>
+        </div>
 
-          <Button
-            type="submit"
-            className="w-full font-semibold shadow-lg transition-all"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Memverifikasi...
-              </>
-            ) : (
-              "Masuk ke Dasbor"
+        {/* Lockout alert */}
+        {lockoutMsg && (
+          <div className="mb-5 rounded-2xl bg-red-50 border border-red-100 px-4 py-3 text-xs text-red-600">
+            {lockoutMsg}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+          {/* Email */}
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">
+              Email
+            </label>
+            <input
+              type="email"
+              placeholder="admin@momeninvite.com"
+              disabled={isLoading}
+              autoComplete="email"
+              className="w-full h-11 rounded-xl border border-gray-200 bg-gray-50/80 px-4 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:border-gray-400 focus:bg-white focus:ring-3 focus:ring-gray-200 disabled:opacity-50"
+              {...register("email")}
+            />
+            {errors.email && (
+              <p className="mt-1 text-[11px] text-red-500">{errors.email.message}</p>
             )}
-          </Button>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">
+              Kata Sandi
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Minimal 8 karakter"
+                disabled={isLoading}
+                autoComplete="current-password"
+                className="w-full h-11 rounded-xl border border-gray-200 bg-gray-50/80 px-4 pr-11 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:border-gray-400 focus:bg-white focus:ring-3 focus:ring-gray-200 disabled:opacity-50"
+                {...register("password")}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="mt-1 text-[11px] text-red-500">{errors.password.message}</p>
+            )}
+          </div>
+
+          {/* Submit */}
+          <div className="pt-1">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-11 rounded-full bg-gray-900 hover:bg-gray-700 text-white font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Memverifikasi...</span>
+                </>
+              ) : (
+                "Masuk ke Dasbor"
+              )}
+            </button>
+          </div>
         </form>
-      </CardContent>
-    </Card>
+
+        {/* Divider */}
+        <div className="relative my-5">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-gray-100" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-white px-3 text-xs text-gray-400">atau</span>
+          </div>
+        </div>
+
+        {/* Google */}
+        <button
+          type="button"
+          className="w-full h-11 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+          onClick={() => {
+            // Google OAuth — configure when ready
+          }}
+        >
+          <IconGoogle />
+          Lanjutkan dengan Google
+        </button>
+
+        {/* Brute force notice */}
+        <p className="mt-5 text-center text-[11px] text-gray-400 leading-relaxed">
+          Sistem menerapkan perlindungan brute-force.{" "}
+          <span className="text-gray-500">5× gagal = kunci 15 menit.</span>
+        </p>
+
+        {/* Demo shortcut */}
+        <div className="mt-3 text-center">
+          <button
+            type="button"
+            onClick={() => {
+              setValue("email", "superadmin@momeninvite.com");
+              setValue("password", "Superadmin123#");
+            }}
+            className="text-[11px] text-gray-400 hover:text-gray-600 transition-colors underline underline-offset-2"
+          >
+            Isi akun demo superadmin
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Export ─────────────────────────────────────────────────────────────────
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen bg-[#f7f7f8]">
+          <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
+        </div>
+      }
+    >
+      <LoginPageInner />
+    </Suspense>
   );
 }

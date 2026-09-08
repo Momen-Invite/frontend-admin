@@ -114,8 +114,18 @@ const config: Config = {
         "on-background": "#191c1e",
 
         // ─── Semantic Aliases ─────────────────────────────────────────────────
-        success: "#16a34a",
-        warning: "#b45309",
+        success: {
+          DEFAULT: "#16a34a",
+          foreground: "#ffffff",
+        },
+        warning: {
+          DEFAULT: "#b45309",
+          foreground: "#ffffff",
+        },
+        info: {
+          DEFAULT: "#0284c7",
+          foreground: "#ffffff",
+        },
 
         // ─── shadcn card compat ───────────────────────────────────────────────
         card: {

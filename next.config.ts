@@ -1,13 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   reactStrictMode: true,
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "cdn.momeninvite.com",
-      },
       {
         protocol: "https",
         hostname: "images.unsplash.com",
@@ -49,7 +46,7 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "https://api.momeninvite.web.id";
+    const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "https://api-hacker.momeninvite.web.id";
     return [
       // ── API Proxy ──────────────────────────────────────────────────────────
       // Meneruskan semua request /api/* ke backend Momen Invite.

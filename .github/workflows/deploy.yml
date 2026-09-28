@@ -1,0 +1,135 @@
+name: 🚀 CI/CD & Deploy Frontend Admin to VPS Docker
+
+# Aturan Pemicu (Trigger):
+# 1. Branch 'master': Hanya menjalankan Quality Gate (Typecheck & Lint) untuk memastikan kode aman.
+# 2. Branch 'production': Menjalankan Quality Gate, lalu otomatis DEPLOY ke VPS Docker.
+# 3. workflow_dispatch: Memungkinkan deploy manual dari tab 'Actions' di GitHub jika dibutuhkan.
+on:
+  push:
+    branches:
+      - master
+      - production
+  workflow_dispatch:
+
+jobs:
+  # =========================================================================
+  # JOB 1: QUALITY GATE (Pengujian Kualitas Kode)
+  # Berjalan di branch 'master' dan 'production'
+  # =========================================================================
+  quality-gate:
+    name: 🧪 Quality Gate (Typecheck & Lint)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🔍 Run TypeScript Check
+        run: npm run typecheck
+
+      - name: 🧹 Run Lint
+        run: npm run lint
+
+      - name: 🏗️ Test Build
+        run: npm run build
+
+  # =========================================================================
+  # JOB 2: DEPLOY KE VPS DOCKER
+  # HANYA berjalan jika:
+  # 1. Job 'quality-gate' di atas lulus 100% (tidak ada error)
+  # 2. Push dilakukan ke branch 'production' (atau dipicu manual)
+  # =========================================================================
+  deploy-vps:
+    name: 🚀 Deploy to VPS Docker
+    needs: [quality-gate]
+    if: github.ref == 'refs/heads/production' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔐 Setup SSH & Deploy ke Server
+        env:
+          SSH_KEY: ${{ secrets.SSHVPS_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSHVPS_HOST }}
+          SSH_USER: ${{ secrets.SSHVPS_USERNAME || 'root' }}
+          SSH_PORT: ${{ secrets.SSHVPS_PORT || '20264' }}
+          SSH_DIR: ${{ secrets.SSHVPS_DIRECTORY || '/root/momeninvite/frontend-admin' }}
+        run: |
+          # 1. Bersihkan variabel dari spasi atau karakter newline (\r, \n)
+          CLEAN_HOST=$(echo "$SSH_HOST" | tr -d '\r\n' | xargs)
+          CLEAN_USER=$(echo "$SSH_USER" | tr -d '\r\n' | xargs)
+          CLEAN_PORT=$(echo "$SSH_PORT" | tr -d '\r\n' | xargs)
+          CLEAN_DIR=$(echo "$SSH_DIR" | tr -d '\r\n' | xargs)
+
+          # 2. Persiapan SSH Key di runner GitHub Actions
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p $CLEAN_PORT -H "$CLEAN_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          # 3. Pastikan direktori tujuan di VPS sudah ada
+          echo "📁 Menyiapkan direktori server: $CLEAN_DIR"
+          ssh -p $CLEAN_PORT -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "$CLEAN_USER@$CLEAN_HOST" "mkdir -p '$CLEAN_DIR'"
+
+          # 4. Kompresi file rilis produksi (exclude file dev/docs yang tidak diperlukan di VPS)
+          echo "📦 Mengompresi file proyek ke arsip tar.gz..."
+          tar -czf /tmp/deploy.tar.gz \
+            --exclude="./.git*" \
+            --exclude="./@agents*" \
+            --exclude="./.gemini*" \
+            --exclude="./.claude*" \
+            --exclude="./.grok*" \
+            --exclude="./.codebase-memory*" \
+            --exclude="./.rtk*" \
+            --exclude="./docs*" \
+            --exclude="./Zzz*" \
+            --exclude="./node_modules*" \
+            --exclude="./*.md" \
+            --exclude="./.next*" \
+            --exclude="./.vscode*" \
+            .
+
+          # 5. Transfer arsip rilis ke server VPS melalui SCP
+          echo "🚀 Mengirimkan arsip rilis ke VPS via SCP..."
+          scp -P $CLEAN_PORT -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no /tmp/deploy.tar.gz "$CLEAN_USER@$CLEAN_HOST:$CLEAN_DIR/deploy.tar.gz"
+
+          # 6. Ekstrak kode dan jalankan Docker Compose di server VPS
+          echo "🐳 Mengekstrak kode di server dan menyalakan Docker Compose..."
+          ssh -p $CLEAN_PORT -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "$CLEAN_USER@$CLEAN_HOST" "
+            set -e
+            TARGET_DIR=\"\$(echo '$CLEAN_DIR' | tr -d '\r\n' | xargs)\"
+            cd \"\$TARGET_DIR\"
+
+            echo '📂 Mengekstrak arsip deploy.tar.gz...'
+            tar -xzf deploy.tar.gz
+            rm -f deploy.tar.gz
+
+            # Cek apakah file .env sudah ada di server
+            if [ ! -f .env.production ]; then
+              echo '⚠️ PERINGATAN: File .env.production belum ditemukan! Membuat file default sementara...'
+              cat > .env.production << 'ENVEOF'
+          NEXT_PUBLIC_API_URL=https://api-hacker.momeninvite.web.id
+          NEXT_PUBLIC_APP_NAME=Momen Invite Admin
+          NEXT_PUBLIC_APP_ENV=production
+          ENVEOF
+            fi
+
+            echo '🔨 Membangun & Memperbarui Kontainer Docker (Zero-Downtime)...'
+            docker compose up -d --build
+
+            echo '🧹 Membersihkan image lama yang tidak terpakai...'
+            docker image prune -f
+
+            echo '🎉 Deployment frontend-admin Momen Invite ke VPS Docker BERHASIL 100%!'
+          "

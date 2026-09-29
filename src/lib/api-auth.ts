@@ -9,6 +9,7 @@ import { api, ApiError } from "@/lib/api";
 export interface AdminLoginPayload {
   email: string;
   password: string;
+  turnstileToken?: string;
 }
 
 export interface AdminUserData {

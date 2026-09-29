@@ -1,12 +1,30 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2, Eye, EyeOff } from "lucide-react";
+
+// ── Turnstile Types ─────────────────────────────────────────────────────────
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: string | HTMLElement, options: {
+        sitekey: string;
+        callback: (token: string) => void;
+        "error-callback"?: () => void;
+        "expired-callback"?: () => void;
+        theme?: "light" | "dark" | "auto";
+        size?: "normal" | "compact";
+      }) => string;
+      reset: (widgetId: string) => void;
+      remove: (widgetId: string) => void;
+    };
+  }
+}
 
 // ── Google Icon ─────────────────────────────────────────────────────────────
 const IconGoogle = () => (
@@ -47,6 +65,56 @@ function LoginPageInner() {
   const [showPassword, setShowPassword] = useState(false);
   const [lockoutMsg, setLockoutMsg] = useState<string | null>(null);
 
+  // ── Turnstile State ─────────────────────────────────────────────────────
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileError, setTurnstileError] = useState(false);
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | null>(null);
+  const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
+
+  const renderTurnstile = useCallback(() => {
+    if (!turnstileRef.current || !window.turnstile || !TURNSTILE_SITE_KEY) return;
+    // Cleanup previous widget if any
+    if (widgetIdRef.current) {
+      try { window.turnstile!.remove(widgetIdRef.current); } catch {}
+      widgetIdRef.current = null;
+    }
+    turnstileRef.current.innerHTML = "";
+    widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
+      sitekey: TURNSTILE_SITE_KEY,
+      callback: (token: string) => {
+        setTurnstileToken(token);
+        setTurnstileError(false);
+      },
+      "error-callback": () => setTurnstileError(true),
+      "expired-callback": () => setTurnstileToken(null),
+      theme: "light",
+      size: "normal",
+    });
+  }, [TURNSTILE_SITE_KEY]);
+
+  // Load Turnstile script
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY) return;
+    const existing = document.querySelector('script[src*="turnstile"]');
+    if (existing) {
+      // Script already loaded, just render
+      if (window.turnstile) renderTurnstile();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => renderTurnstile();
+    document.head.appendChild(script);
+    return () => {
+      if (widgetIdRef.current && window.turnstile) {
+        try { window.turnstile.remove(widgetIdRef.current); } catch {}
+      }
+    };
+  }, [TURNSTILE_SITE_KEY, renderTurnstile]);
+
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
       router.replace(searchParams.get("from") || "/");
@@ -64,14 +132,28 @@ function LoginPageInner() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setLockoutMsg("Harap selesaikan verifikasi anti-bot terlebih dahulu.");
+      return;
+    }
     setIsLoading(true);
     setLockoutMsg(null);
     try {
-      await login(data);
+      await login({
+        ...data,
+        turnstileToken: turnstileToken || undefined,
+      });
     } catch (err: unknown) {
-      const e = err as { status?: number };
+      const e = err as { status?: number; message?: string };
       if (e?.status === 423) {
         setLockoutMsg("Akun terkunci 15 menit karena terlalu banyak percobaan gagal.");
+      } else if (e?.message) {
+        setLockoutMsg(e.message);
+      }
+      // Reset Turnstile on login failure so user can retry
+      if (widgetIdRef.current && window.turnstile) {
+        try { window.turnstile.reset(widgetIdRef.current); } catch {}
+        setTurnstileToken(null);
       }
     } finally {
       setIsLoading(false);
@@ -169,6 +251,18 @@ function LoginPageInner() {
               <p className="mt-1 text-[11px] text-red-500">{errors.password.message}</p>
             )}
           </div>
+
+          {/* Turnstile Anti-Bot */}
+          {TURNSTILE_SITE_KEY && (
+            <div className="flex flex-col items-center">
+              <div ref={turnstileRef} />
+              {turnstileError && (
+                <p className="mt-1 text-[11px] text-red-500">
+                  Verifikasi gagal. Silakan coba lagi.
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Submit */}
           <div className="pt-1">
